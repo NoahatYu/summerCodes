@@ -1,3 +1,5 @@
+#This is what I have so far.
+#try to uderstand it if you dont get why I did something or If you have a better idea to do something then add it.
 class Board(object):
     #  basically this is a constructor
     def __init__(self):
