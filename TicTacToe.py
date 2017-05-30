@@ -1,21 +1,21 @@
-#This is what I have so far.
-#try to uderstand it if you dont get why I did something or If you have a better idea to do something then add it.
-class Board(object):
+class Board:
     #  basically this is a constructor
     def __init__(self):
         self.board = [["*", "*", "*"], ["*", "*", "*"], ["*", "*", "*"]]
 
 
-    def printboard():
-        print(my_board.board[0][0] + "|" + my_board.board[0][1] + "|" + my_board.board[0][2])
-        print(my_board.board[1][0] + "|" + my_board.board[1][1] + "|" + my_board.board[1][2])
-        print(my_board.board[2][0] + "|" + my_board.board[2][1] + "|" + my_board.board[2][2])
+    def printboard(self):
+        print(self.board[0][0] + "|" + self.board[0][1] + "|" + self.board[0][2])
+        print(self.board[1][0] + "|" + self.board[1][1] + "|" + self.board[1][2])
+        print(self.board[2][0] + "|" + self.board[2][1] + "|" + self.board[2][2])
 
     #Make this method- (unfinished)
-    def win():
+    def win(self):
         #check for win
         boardWin = False
-    def is_valid_move():
+        return boardWin
+
+    def is_valid_move(self):
         pass
 
 
@@ -36,9 +36,8 @@ def changeTurn(turn):
         turn = Turn.X
     elif(turn is Turn.X):
         turn = Turn.O
-
+    my_board.printboard()
     # at the end of each turn print the board
-    Board.printboard()
     return turn
 
 
@@ -46,13 +45,17 @@ def changeTurn(turn):
 # Main Method run the game
 def main():
     print("*****************Welcome to TicTacToe******************\n")
+    tic_tac_toe = Board()
 
     #Create turns
     aTurn = Turn()
     current_turn = aTurn.X
-    while(Board.win() != False):
+
+    gameOver = tic_tac_toe.win()
+
+    while(gameOver == False):
         input_row = input("Player " + current_turn +" Enter Row number: ")
-        input_col = input("Player " + current_turn + " Enter Column number: ")
+        input_col = input("Player " + current_turn + " Enter Column number: \n")
 
         #place piece on board
         my_board.board[int(input_row)][int(input_col)] = current_turn
