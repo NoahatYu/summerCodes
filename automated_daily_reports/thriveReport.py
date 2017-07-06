@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait  # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC  # available since 2.26.0
-class SpringServe:
+class Thrive:
     # TODO: Make sure I check what day it is,because if it is a monday the weekend days must be done as well.
 
     # Monday is 0 and Sunday is 6
