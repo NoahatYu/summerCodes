@@ -17,7 +17,7 @@ LKQD_dict = {"SelectMedia_MW_AUS_Android_$2_floor": "SelectMedia::Direct::Mobile
                 "SelectMedia_MW_SG-Android_$2_floor": "SelectMedia::Direct::Mobile::SG-Android-2_DemandExtreme",
                 "SelectMedia_MW_SG-IOS_$2_floor": "SelectMedia::Direct::Mobile::SG-IOS-2_DemandExtreme"}
 
-from_address = "noah.p@taboola.com"
+from_address = ""
 to_address = "daniel.t@taboola.com"
 
 #date_post = datetime.now() - timedelta(days=2)
@@ -47,7 +47,7 @@ msg.attach(part)
 
 server = smtplib.SMTP('smtp.gmail.com', 587)
 server.starttls()
-server.login(from_address, "whviduonpebrdxnl")
+server.login(from_address, "password")
 text = msg.as_string()
 server.sendmail(from_address, to_address, text)
 server.quit()
