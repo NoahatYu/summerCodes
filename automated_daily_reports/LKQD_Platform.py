@@ -29,8 +29,8 @@ class LKQD:
     password = browser.find_element_by_id("password")
 
 
-    username.send_keys("taboola_selectmedia")
-    password.send_keys("Matityahu123456")
+    username.send_keys("")
+    password.send_keys("")
 
     signInButton = browser.find_element_by_tag_name("button")
     # Click the sign in button
