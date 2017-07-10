@@ -1,16 +1,19 @@
-class OptDailyReport:
+import re
+import time
+import csv
+#import sendEmail
+from selenium import webdriver
+from datetime import datetime
+from datetime import timedelta
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
+from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
+from bs4 import BeautifulSoup
+
+class Optimatic:
+
     #TODO: Make sure I check what day it is,because if it is a monday the weekend days must be done as well.
-    import re
-    import time
-    import csv
-    #import sendEmail
-    from selenium import webdriver
-    from datetime import datetime
-    from datetime import timedelta
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
-    from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
-    from bs4 import BeautifulSoup
+    #Also the calender is weird so got to go back a month
 
     # Monday is 0 and Sunday is 6
     DayOfTheWeek = datetime.today().weekday()
@@ -32,12 +35,12 @@ class OptDailyReport:
 
     loginPage = browser.get('https://publishers.optimatic.com/Portal2/default.aspx')
 
-    username = browser.find_element_by_xpath("//*[@id='txtUserName']")
-    password = browser.find_element_by_xpath("//*[@id='txtPassword']")
+    username = browser.find_element_by_id("txtUserName")
+    password = browser.find_element_by_id("txtPassword")
 
 
-    username.send_keys("taboola@selectmedia")
-    password.send_keys("Banana")
+    username.send_keys("")
+    password.send_keys("")
     # Find sign in button
     signInButton = browser.find_element_by_tag_name("button")
     #click the sign in button
@@ -94,7 +97,7 @@ class OptDailyReport:
 
     # 2 calenders and 30 days c1: 0:1 - 29:30 and c2: 30:1 - 60:30
     # if 31 days c1: 0:1 - 30:31 and c2: 31:1 - 62:31
-    calender_dates = browser.find_elements_by_xpath('//a[@href="'+'#'+'"]');
+    calender_dates = browser.find_elements_by_xpath('//a[@href="'+'#'+'"]')
     two_days_past = the_time.day - 2
     counter = 1
 
@@ -117,7 +120,7 @@ class OptDailyReport:
     first_cal_date.click()
     second_cal_date.click()
 
-    # Get the 'ok button and click it
+    # Get the 'ok' button and click it
     ok_btn = browser.find_elements_by_class_name('button')
     ok_btn[len(ok_btn) - 1].click()
 
@@ -150,6 +153,7 @@ class OptDailyReport:
             found = ''
 
         data_list = found.split(",")
+
         # Ads delivered is paid impressions
         paid_impressions_list = data_list[::4]
         paid_impressions_list = paid_impressions_list[1::2]
@@ -157,7 +161,7 @@ class OptDailyReport:
         revenue_list = data_list[6::8]
         numberOfElements = len(domain_list)
 
-        # Removing clutter and getting a clean website string
+        # Remove clutter and getting a clean website string
         x = 0
         while(x < numberOfElements):
             domain_list[x] = re.search("'(.+?)'", domain_list[x]).group(1)
@@ -176,6 +180,6 @@ class OptDailyReport:
             while(indexer < numberOfElements - 1):
                 fileWriter.writerow([end_date, domain_list[indexer], paid_impressions_list[indexer], revenue_list[indexer]])
                 indexer += 1
-        q +=1
+        q += 1
     browser.quit()
     print("Done!")
