@@ -1,19 +1,26 @@
-class LKQDDailyReport:
-    #TODO: Make sure I check what day it is, because if it is a monday the weekend days must be done as well.
-    import time
-    import csv
-    #import sendEmail
-    from datetime import datetime
-    from datetime import timedelta
-    from selenium import webdriver
-    from bs4 import BeautifulSoup
-    from selenium.webdriver.common.keys import Keys
+import time
+import csv
+import requests
+#import sendEmail
+from datetime import datetime
+from datetime import timedelta
+from selenium import webdriver
+from bs4 import BeautifulSoup
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
+
+class LKQD:
 
     # Monday is 0 and Sunday is 6
     DayOfTheWeek = datetime.today().weekday()
     #browser = webdriver.PhantomJS()
     #browser.set_window_size(1120, 550)
-    browser = webdriver.Firefox()
+
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.binary_location = '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary'
+    the_path = "/Users/noah.p/going_headless/chromedriver"
+    browser = webdriver.Chrome(executable_path=the_path, chrome_options=chrome_options)
 
     browser.get('https://ui.lkqd.com/login')
     #assert 'Yahoo!' in browser.title
@@ -76,12 +83,11 @@ class LKQDDailyReport:
     # Run the report
     runReportButton = AllButtonsOnReportPage[14]
     runReportButton.click()
-
     table = browser.find_element_by_xpath('//*[@id="reports"]/div/div[4]/div/div/div[1]/table')
 
     tableOfData = browser.find_element_by_xpath("/html/body/div[1]/div[2]/div/div/div[4]/div/div/div[1]")
     pickle = browser.find_elements_by_xpath('//*[@id="reports"]/div/div[4]/div/div/div[1]/table/tbody/tr[2]/td[2]/div')
-    time.sleep(2)
+    time.sleep(5)
 
     table_text = tableOfData.text
 
