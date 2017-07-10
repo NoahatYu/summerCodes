@@ -1,19 +1,17 @@
+import re
+import csv
+import time
+#import sendEmail
+from time import sleep
+from selenium import webdriver
+from datetime import datetime
+from datetime import timedelta
+from bs4 import BeautifulSoup
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait  # available since 2.4.0
+from selenium.webdriver.support import expected_conditions as EC  # available since 2.26.0
 class SpringServe:
     # TODO: Make sure I check what day it is,because if it is a monday the weekend days must be done as well.
-    import re
-    import csv
-    #import sendEmail
-    import time
-    from time import sleep
-    from selenium import webdriver
-    from datetime import datetime
-    from datetime import timedelta
-    from bs4 import BeautifulSoup
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait  # available since 2.4.0
-    from selenium.webdriver.support import expected_conditions as EC  # available since 2.26.0
-
-
     # Monday is 0 and Sunday is 6
     DayOfTheWeek = datetime.today().weekday()
     # Get the current Date
@@ -34,12 +32,12 @@ class SpringServe:
 
     loginPage = browser.get('https://video.springserve.com/')
 
-    username = browser.find_element_by_xpath("//*[@id='user_email']")
-    password = browser.find_element_by_xpath("//*[@id='user_password']")
+    username = browser.find_element_by_id("user_email")
+    password = browser.find_element_by_id("user_password")
 
     # Type in username and password
-    username.send_keys("or.ben@taboola.com")
-    password.send_keys("Orben1234!")
+    username.send_keys("")
+    password.send_keys("")
 
     # Find sign in button
     signInButton = browser.find_element_by_name("commit")
@@ -48,13 +46,16 @@ class SpringServe:
 
     reportPage = browser.get("https://video.springserve.com/reports")
 
+    a_year1 = str(the_time.year % 100)
     a_month1 = str(the_time.month)
     a_day1 = str(the_time.day - 2)
+    a_year2 = str(the_time.year % 100)
     a_month2 = str(the_time.month)
     a_day2 = str(the_time.day - 2)
 
-    # Get the report page
-    date_report_page = "https://video.springserve.com/reports?date_range=Custom&custom_date_range=" + a_month1 +"%2F" + a_day1+ "%2F17+00%3A00+-+" + a_month2 + "%2F" + a_day2 + "%2F17+23%3A00&interval=Day&timezone=America%2FNew_York&dimensions%5B%5D=supply_tag_id"
+
+    # Get the report page and run the report
+    date_report_page = "https://video.springserve.com/reports?date_range=Custom&custom_date_range=" + a_month1 + "%2F" + a_day1 + "%2F" + a_year1 + "+00%3A00+-+" + a_month2 + "%2F" + a_day2 + "%2F" + a_year2 + "+23%3A00&interval=Day&timezone=America%2FNew_York&dimensions%5B%5D=supply_tag_id"
     browser.get(date_report_page)
     runReportButton = browser.find_element_by_name("commit")
     runReportButton.click()
@@ -74,13 +75,13 @@ class SpringServe:
     del table_row_data[-1]
 
 
-    dictOfT = {"MX": "Taboola MX $1 Floor".replace(" ",""), "AUS": "Taboola AUS $2.5 Floor (65016)".replace(" ",""), "JS-AUS": "Taboola-JS-AUS $2.5 Floor (97619)".replace(" ",""),
-            "BR": "Taboola BR $1 Floor (65018)".replace(" ",""), "Anglo": "Taboola Anglo +FR +DE SP $4 Floor (66097)".replace(" ",""),"JS-Anglo": "Taboola-JS- Anglo +FR +DE SP $4 Floor (97618)".replace(" ","")}
+    dictOfT = {"MX": "Taboola MX $1 Floor".replace(" ",""), "AUS": "Taboola AUS $2.5 Floor".replace(" ",""), "JS-AUS": "Taboola-JS-AUS $2.5 Floor".replace(" ",""),
+            "BR": "Taboola BR $1 Floor".replace(" ", ""), "Anglo": "Taboola Anglo +FR +DE SP $4 Floor".replace(" ",""),"JS-Anglo": "Taboola-JS- Anglo +FR +DE SP $4 Floor".replace(" ", "")
+            }
     rev_list = []
     imp_list = []
     name_list = []
 
-    #FIXME: one of the revenues the 'Taboola js aus' didnt get the revenue'
     for table_row in table_row_data:
         table_row = table_row.text
         current_row = table_row.split(" ")
