@@ -65,6 +65,8 @@ class PulsePoint:
         """
         browser = webdriver.Firefox()
         browser.wait = WebDriverWait(browser, 5)
+        alertOnPage = browser.find_element_by_id("announcementContainer")
+        print("Announcement: " + alertOnPage.text)
         return browser
 
     def lookup(self,browser):
