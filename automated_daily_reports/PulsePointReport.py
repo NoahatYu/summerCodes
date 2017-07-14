@@ -65,8 +65,6 @@ class PulsePoint:
         """
         browser = webdriver.Firefox()
         browser.wait = WebDriverWait(browser, 5)
-        alertOnPage = browser.find_element_by_id("announcementContainer")
-        print("Announcement: " + alertOnPage.text)
         return browser
 
     def lookup(self,browser):
@@ -80,6 +78,11 @@ class PulsePoint:
         except Exception:
             raise Exception("Error- PulsePoint: Failed to load page")
         try:
+            try:
+                alertOnPage = browser.wait.until(EC.visibility_of_element_located((By.ID, "announcementContainer")))
+                print("Announcement: " + alertOnPage.text)
+            except:
+                pass
             #username = browser.find_element_by_id("UserName")
             #password = browser.find_element_by_id("Password")
             username = browser.wait.until(EC.visibility_of_element_located((By.ID, "UserName")))
