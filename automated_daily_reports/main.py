@@ -1,4 +1,5 @@
 import time
+from sendEmail import main
 import PulsePointReport
 import SpringServeReport
 import Optimatic_Platfrom
@@ -102,7 +103,10 @@ class Main:
             pass
             if ir is 3:
                 print("ERROR: Thrive did not run")
-
+    print("Sending Emails")
+    #send email's main method
+    main()
+    print("Done")
     print("やった！！！")
 
     print("This program took --- %s seconds ---" % (time.time() - start_time_total))
