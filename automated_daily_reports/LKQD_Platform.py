@@ -1,61 +1,25 @@
 import time
 import csv
-import requests
-#import sendEmail
 from datetime import datetime
 from datetime import timedelta
+# import sendEmail
+from time import sleep
 from selenium import webdriver
 from bs4 import BeautifulSoup
+from PulsePointReport import PulsePoint
+from selenium.common.exceptions import ElementNotVisibleException
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC  # available since 2.26.0
+from selenium.webdriver.support.ui import WebDriverWait  # available since 2.4.0
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 
 class LKQD:
+    start_time_elka = time.time()
 
     # Monday is 0 and Sunday is 6
     DayOfTheWeek = datetime.today().weekday()
-    #browser = webdriver.PhantomJS()
-    #browser.set_window_size(1120, 550)
-
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.binary_location = '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary'
-    the_path = "/Users/noah.p/going_headless/chromedriver"
-    browser = webdriver.Chrome(executable_path=the_path, chrome_options=chrome_options)
-
-    browser.get('https://ui.lkqd.com/login')
-    #assert 'Yahoo!' in browser.title
-
-    username = browser.find_element_by_id("username")
-    password = browser.find_element_by_id("password")
-
-
-    username.send_keys("")
-    password.send_keys("")
-
-    signInButton = browser.find_element_by_tag_name("button")
-    # Click the sign in button
-    signInButton.click()
-
-    # delays for 3 seconds
-    time.sleep(3)
-
-    # Here is a list of all the buttons on the page
-    AllButtonsOnReportPage = browser.find_elements_by_css_selector('.btn')
-    numOfButtons = AllButtonsOnReportPage.__len__()
-
-    dailyReportButton = AllButtonsOnReportPage[5]
-
-    # Click to set to daily report button
-    dailyReportButton.click()
-    dailyReportButton.send_keys(Keys.ARROW_DOWN)
-
-    # Find dropdown menu for daily report and click it
-    dailyReportDropDownList = browser.find_elements_by_class_name('dropdown-menu')
-    dailyReportDropDownList[3].click()
-
-    # Find the date tab and click on it
-    customDateRangeTab = browser.find_element_by_tag_name('lkqd-date-range')
-    customDateRangeTab.click()
 
     # Get the current Date
     currentDate = time.strftime("%m/%d/%Y")
@@ -65,142 +29,279 @@ class LKQD:
     end_date = date_1 - timedelta(days=2)
     end_date = end_date.strftime('%m/%d/%Y')
 
-    # Enter the date in the data field for start date and end data
-    time.sleep(2)
-    customDateRangeStart = browser.find_element_by_name('daterangepicker_start')
-    customDateRangeStart.clear()
-    customDateRangeStart.send_keys(end_date)
+    date_post = datetime.now() - timedelta(days=2)
+    date_post = date_post.strftime(("%B %d, %Y"))
+    #location_of_file = "/Users/noah.p/Desktop/TestFolder/"
+    location_of_file = "/Users/noah.p/Documents/LKQD_July_12/LKQD_July_12/"
 
-    customDateRangeEnd = browser.find_element_by_name('daterangepicker_end')
-    customDateRangeEnd.clear()
-    customDateRangeEnd.send_keys(end_date)
+    #browser = webdriver.PhantomJS()
+    #browser.set_window_size(1120, 550)
 
+    #chrome_options = Options()
+    #chrome_options.add_argument("--headless")
+    #chrome_options.binary_location = '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary'
+    #the_path = "/Users/noah.p/going_headless/chromedriver"
+    #browser = webdriver.Chrome(executable_path=the_path, chrome_options=chrome_options)
 
-    # Hit the apply button
-    applyButton = browser.find_element_by_class_name('applyBtn')
-    applyButton.click()
+    dict_T = {
+        "TaboolaMWMXIOS$1floor": "SelectMedia_MW_MX-IOS_$1_floor",
+        "TaboolaMWJPIOS$2floor": "SelectMedia_MW_JP-IOS_$2_floor",
+        "TaboolaMWAUSAndroid$2floor": "SelectMedia_MW_AUS_Android_$2_floor",
+        "TaboolaMWSGAndroid$2floor": "SelectMedia_MW_SG-Android_$2_floor",
+        "TaboolaMWSGIOS$2floor": "SelectMedia_MW_SG-IOS_$2_floor",
+        "TaboolaMWMXAndroid$1floor": "SelectMedia_MW_MX-Android_$1_floor",
+        "TaboolaMWHKIOS$1floor": "SelectMedia_MW_HK-IOS_$1_floor",
+        "TaboolaMWBRIOS$0.5floor": "SelectMedia_MW_BR-IOS_$0.5_floor",
+        "TaboolaMWBRIOS$1floor": "SelectMedia_MW_BR-IOS_$1_floor",
+        "TaboolaMWHKAndroid$1floor": "SelectMedia_MW_HK-Android_$1_floor"
 
-    # Run the report
-    runReportButton = AllButtonsOnReportPage[14]
-    runReportButton.click()
-    table = browser.find_element_by_xpath('//*[@id="reports"]/div/div[4]/div/div/div[1]/table')
+    }
 
-    tableOfData = browser.find_element_by_xpath("/html/body/div[1]/div[2]/div/div/div[4]/div/div/div[1]")
-    pickle = browser.find_elements_by_xpath('//*[@id="reports"]/div/div[4]/div/div/div[1]/table/tbody/tr[2]/td[2]/div')
-    time.sleep(5)
+    def __init__(self, end_date, date_post, location_of_file, dict_T):
+        """
+        Constructor
+        :param end_date:
+        :param date_post:
+        :param location_of_file:
+        :param dict_T:
+        """
+        self.end_date = end_date
+        self.date_post = date_post
+        self.location_of_file = location_of_file
+        self.dict_T = dict_T
 
-    table_text = tableOfData.text
+    def start_browser(self):
+        """
+        Initilizes the browser
+        :return the browser:
+        """
+        browser = webdriver.Firefox()
 
-    table_text_list = str(table_text).split(" ")
+        browser.wait = WebDriverWait(browser, 5)
+        return browser
 
-    html_source = browser.page_source
-    browser.quit()
-    soup = BeautifulSoup(html_source, "html.parser")
-
-    list_of_toboolas = soup.find_all("div","name-cell")
-
-    # List of all the impressions on the page and how many there are
-    impressions_list = soup.find_all("td","reporting-td-value-sized ")
-    impressions_list = impressions_list[0::10]
-    impressions_list.pop(0) # Remove the first element, which is the total
-    numOfImpressions = impressions_list.__len__() - 1
-
-    # Table with x columns and numOfImpressions number of rows
-
-    # Gets all the rows in the table
-    rows_List_strings = []
-    rows = soup.findAll('table')[0].findAll('tr')
-
-    # Makes a list of all the revenues, impressions and taboola and put them into a 2d list
-    x = 0
-    i = 2
-
-    final_revenue_list = []
-    final_revenue_list.append([])
-
-    final_impressions_list = []
-    final_impressions_list.append([])
-
-    final_taboolas_list = []
-    final_taboolas_list.append([])
-
-
-    while(x < numOfImpressions):
+    def lookup(self,browser):
+        """Login to website and navigate to report page
+        :param browser:
+        :return:
+        """
         try:
-            stringRow = str(rows[i].text)
+            loginPage = "https://ui.lkqd.com/login"
+            browser.get(loginPage)
+
         except Exception:
-            break
+            raise Exception("Error-LKQD:Failed to load page")
+        try:
+            #username = browser.find_element_by_id("username")
+            #password = browser.find_element_by_id("password")
 
-        # Parse the row and get the revenue number
-        split_string_by_rows = stringRow.split("$",5)
+            username = browser.wait.until(EC.visibility_of_element_located((By.ID, "username")))
+            password = browser.wait.until(EC.visibility_of_element_located((By.ID, "password")))
+            signInButton = browser.wait.until(EC.element_to_be_clickable((By.TAG_NAME, "button")))
 
-        revenue = split_string_by_rows[3]
-        revenue_final = revenue[:4]
+            username.send_keys("taboola_selectmedia")
+            password.send_keys("Matityahu123456")
+
+            #signInButton = browser.find_element_by_tag_name("button")
+            try:
+                # Click the sign in button
+                signInButton.click()
+                print("Logged in successfully")
+            except ElementNotVisibleException:
+                signInButton = browser.wait.until(EC.visibility_of_element_located((By.TAG_NAME, "button")))
+                if(signInButton.text == "Sign In"):
+                    signInButton.click()
+        except TimeoutException:
+            print("Login Box or Button not found on LKQD website")
+            print("Login Failed")
+
+            # delays for 3 seconds
+            #sleep(3)
+
+    def fillInDateAndRunReport(self, browser, end_date):
+        # Here is a list of all the buttons on the page
+        reportTableIsLoaded = browser.find_elements_by_class_name("report-table")
+        i = 0
+        while len(reportTableIsLoaded) is 0:
+            sleep(1)
+            reportTableIsLoaded = browser.find_elements_by_class_name("report-table")
+            i += 1
+
+        AllButtonsOnReportPage = browser.wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".btn")))
+        numOfButtons = len(AllButtonsOnReportPage)
+        #If not all the buttons loaded wait and try again
+        if numOfButtons < 20:
+            sleep(5)
+            AllButtonsOnReportPage = browser.find_elements_by_css_selector('.btn')
+
+        dailyReportButton = AllButtonsOnReportPage[5]
+        try:
+            # Click to set to daily report button
+            dailyReportButton.click()
+            dailyReportButton.send_keys(Keys.ARROW_DOWN)
+        except Exception:
+            raise Exception("Error-LKQD: Unable to click daily report button")
+
+        # Find dropdown menu for daily report and click it
+        dailyReportDropDownList = browser.find_elements_by_class_name('dropdown-menu')
+        while len(dailyReportDropDownList) is 0:
+            sleep(1)
+            dailyReportDropDownList = browser.wait.until(EC.visibility_of_any_elements_located((By.CLASS_NAME, "dropdown-menu")))
+        try:
+            # Click the drop down menu button
+            dailyReportDropDownList[3].click()
+        except Exception:
+            raise Exception("Error-LKQD: unable to click drop down menu button")
+        try:
+            # Find the date tab and click on it
+            #customDateRangeTab = browser.find_element_by_tag_name('lkqd-date-range')
+            customDateRangeTab = browser.wait.until(EC.element_to_be_clickable((By.TAG_NAME, "lkqd-date-range")))
+            try:
+                customDateRangeTab.click()
+            except Exception:
+                raise Exception("Error-LKQD: unable to click custom range tab button")
+        except Exception:
+            raise Exception("Error-LKQD: Unable to find custom date range tab")
+
+        # Enter the date in the data field for start date and end data
+        sleep(1)
+        try:
+            #customDateRangeStart = browser.find_element_by_name('daterangepicker_start')
+            customDateRangeStart = browser.wait.until(EC.visibility_of_element_located((By.NAME, 'daterangepicker_start')))
+
+            customDateRangeEnd = browser.find_element_by_name('daterangepicker_end')
+
+            #applyButton = browser.find_element_by_class_name('applyBtn')
+            applyButton = browser.wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "applyBtn")))
+
+            try:
+                # Custom range start
+                customDateRangeStart.clear()
+                customDateRangeStart.send_keys(end_date)
+                # Custom range end
+                customDateRangeEnd.clear()
+                customDateRangeEnd.send_keys(end_date)
+                # Hit the apply button
+                applyButton.click()
+            except Exception:
+                raise Exception("Error-LKQD: Unable to enter custom date range info and click apply button")
+        except Exception:
+            raise Exception("Error-LKQD: Unable to find range info fields and apply button")
+        try:
+            # Tries to find the run report button and will try at least 5 times
+            AllButtonsOnReportPage = browser.find_elements_by_css_selector('.btn')
+            runReportButton = AllButtonsOnReportPage[14]
+            w = 1
+            while (not runReportButton.text == "Run Report") and w < 6:
+                print("Could not find the run report button, trying again...")
+                sleep(w)
+                AllButtonsOnReportPage = browser.find_elements_by_css_selector('.btn')
+                runReportButton = AllButtonsOnReportPage[14]
+                w += 1
+
+            try:
+                runReportButton.click()
+                print("Found it, Ran report")
+            except Exception:
+                raise Exception("Error-LKQD:unable to click run report button")
+        except:
+            print("Unable to find run report button, trying again...")
+            try:
+                sleep(3)
+                runReportButton = browser.find_element_by_class_name("run-report-button")
+                runReportButton.click()
+            except Exception:
+                raise Exception("Error-LKQD: Unable to find run report button")
 
 
-        # Checks to see if the first part of the string is a '0'
-        first_digit_rev = revenue[:1]
-        int_rev_final = "-1"
+    def getData(self,browser):
+        """
+        Gets data from webpage
+        :param browser:
+        :return:
+        """
+        #reportTable = browser.find_element_by_xpath('/html/body/div[1]/div[2]/div/div/div[4]/div/div/div[2]/table')
 
-        # If it is convert just the first digit to a 0
-        if(first_digit_rev is "0"):
-            int_rev_final = first_digit_rev
-            # Otherwise
-        else:
-            int_rev_final = revenue_final
+        # The loading wheel on the website (on a mac it looks like a lolipop(on the website it does not))
+        lollipop = browser.find_elements_by_class_name("operation-in-progress-overlay")
+        # Tries 3 different ways of getting the table data by class name then by tag name then by id
 
-        final_revenue_list[0].append(int_rev_final)
-        final_impressions_list[0].append(impressions_list[x].text)
-        final_taboolas_list[0].append(list_of_toboolas[x].text)
-        i += 1
-        x += 1
+        try:
+            # Waits for the page to completely load
+            while(len(lollipop) is not 0):
+                lollipop = browser.find_elements_by_class_name("operation-in-progress-overlay")
+                sleep(1)
+            reportTable = browser.find_elements_by_class_name("report-table")
+            reportTable = reportTable[1]
+            report_table_data = reportTable.text.splitlines()
+            report_table_data = report_table_data[15:]
+            del report_table_data[2::3]
 
-    # Create 2d table of values
-    final_list = list(map(list, zip(final_impressions_list, final_revenue_list)))
-    final_list = final_list[0]
+        except:
+            try:
+                while (len(lollipop) is not 0):
+                    lollipop = browser.find_elements_by_class_name("operation-in-progress-overlay")
+                    sleep(1)
+                reportTable = browser.find_element_by_tag_name("table")
+                report_table_data = reportTable.text.splitlines()
+                report_table_data = report_table_data[15:]
+                taboolas = report_table_data[2::3]
+            except:
+                try:
+                    while (len(lollipop) is not 0):
+                        lollipop = browser.find_elements_by_class_name("operation-in-progress-overlay")
+                        sleep(1)
+                    reportTable = browser.find_elements_by_id('reports')
+                    report_table_data = reportTable.text.splitlines()
+                    report_table_data = report_table_data[42:len(report_table_data) - 3]
+                    del report_table_data[2::3]
+                except Exception:
+                    raise Exception("Error-LKQD: Failed to find data from table")
 
-    # Make a method of this, given a 2-D list make into spread sheet
-    # Create and Write info to an CSV file
-    location_of_file = "/Users/noah.p/Desktop/TestFolder/"
-    num = 0
-    while(num < len(list_of_toboolas)):
-        current_taboola = list_of_toboolas[num].text.replace(" ","")
-        if(current_taboola == "Taboola MW MX IOS $1 floor".replace(" ","")):
-            final_taboola = "SelectMedia_MW_MX-IOS_$1_floor"
 
-        elif(current_taboola == "Taboola MW JP IOS $2  floor".replace(" ","")):
-            final_taboola = "SelectMedia_MW_JP-IOS_$2_floor"
+        name_list = report_table_data[::2]
+        the_length = len(name_list)
+        data_list = report_table_data[1::2]
 
-        elif(current_taboola == "Taboola MW AUS Android $2 floor".replace(" ","")):
-            final_taboola = "SelectMedia_MW_AUS_Android_$2_floor"
+        final_name_list = []
+        final_imp_list = []
+        final_rev_list = []
 
-        elif(current_taboola == "Taboola MW SG Android $2  floor".replace(" ","")):
-            final_taboola = "SelectMedia_MW_SG-Android_$2_floor"
+        i = 0
+        while(i < the_length):
+            current_T = name_list[i].split(" ")
+            # Remove unwanted info
+            del current_T[0]
 
-        elif(current_taboola == "Taboola MW SG IOS $2  floor".replace(" ","")):
-            final_taboola = "SelectMedia_MW_SG-IOS_$2_floor"
+            current_T = " ".join(current_T)
+            current_data = data_list[i].split(" ")
+            current_imp = current_data[1]
+            current_rev = current_data[5]
+            # Add to each to own list
+            final_name_list.append(current_T)
+            final_imp_list.append(current_imp)
+            final_rev_list.append(current_rev)
+            i += 1
 
-        elif(current_taboola == "Taboola MW MX Android $1 floor".replace(" ","")):
-            final_taboola = "SelectMedia_MW_MX-Android_$1_floor"
+        return final_name_list, final_imp_list, final_rev_list
 
-        elif(current_taboola == "Taboola MW HK IOS  $1 floor".replace(" ","")):
-            final_taboola = "SelectMedia_MW_HK-IOS_$1_floor"
 
-        elif(current_taboola == "Taboola MW BR IOS $0.5 floor".replace(" ","")):
-            final_taboola = "SelectMedia_MW_BR-IOS_$0.5_floor"
+def main():
+    pp = PulsePoint(PulsePoint.end_date, PulsePoint.date_post, PulsePoint.location_of_file, PulsePoint.dict_T)
+    lkqd = LKQD(LKQD.end_date,LKQD.date_post,LKQD.location_of_file,LKQD.dict_T)
+    browser = lkqd.start_browser()
+    lkqd.lookup(browser)
+    lkqd.fillInDateAndRunReport(browser, lkqd.end_date)
+    final_name_list, final_imp_list, final_rev_list = lkqd.getData(browser)
+    if len(final_name_list) is 0 or len(final_imp_list) is 0 or len(final_rev_list) is 0:
+        name_list_final, imp_list_final, rev_list_final = lkqd.getData(browser)
+    pp.makeCSV(lkqd.location_of_file, lkqd.dict_T, final_name_list, final_imp_list, final_rev_list, pp.end_date, pp.date_post)
+    browser.quit()
+    print("Done!")
+    print("LKQD program took --- %s seconds ---" % (time.time() - LKQD.start_time_elka))
 
-        elif (current_taboola == "Taboola MW BR IOS $1 floor".replace(" ", "")):
-            final_taboola = "SelectMedia_MW_BR-IOS_$1_floor"
-        else:
-            final_taboola = "SelectMedia_MW_HK-Android_$1_floor"
 
-        date_post = datetime.now() - timedelta(days=2)
-        date_post = date_post.strftime(("%B %d, %Y"))
-        # TODO: Make this a method
-        with open(location_of_file + final_taboola + "_" + date_post + ".csv", "w") as csv_file:
-            fileWriter = csv.writer(csv_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            fileWriter.writerow(["Date", "Impressions", "Revenue"])
-            fileWriter.writerow([end_date, final_list[0][0], final_list[1][0]])
 
-        num += 1
-    print("Finished!")
+if __name__ == "__main__":
+    # Run Main method
+    main()
