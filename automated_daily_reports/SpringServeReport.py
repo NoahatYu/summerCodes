@@ -1,17 +1,20 @@
-import re
-import csv
 import time
-#import sendEmail
-from time import sleep
-from selenium import webdriver
+import csv
 from datetime import datetime
 from datetime import timedelta
-from bs4 import BeautifulSoup
+# import sendEmail
+from time import sleep
+from selenium import webdriver
+from PulsePointReport import PulsePoint
+from selenium.common.exceptions import ElementNotVisibleException
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait  # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC  # available since 2.26.0
+from selenium.webdriver.support.ui import WebDriverWait  # available since 2.4.0
+
+
 class SpringServe:
-    # TODO: Make sure I check what day it is,because if it is a monday the weekend days must be done as well.
+    start_time_ssr = time.time()
     # Monday is 0 and Sunday is 6
     DayOfTheWeek = datetime.today().weekday()
     # Get the current Date
@@ -26,25 +29,6 @@ class SpringServe:
     date_post = date_post.strftime(("%B %d, %Y"))
 
     the_time = datetime.now()
-    #browser = webdriver.Firefox()
-    browser = webdriver.PhantomJS()
-    browser.set_window_size(1124, 1000)
-
-    loginPage = browser.get('https://video.springserve.com/')
-
-    username = browser.find_element_by_id("user_email")
-    password = browser.find_element_by_id("user_password")
-
-    # Type in username and password
-    username.send_keys("")
-    password.send_keys("")
-
-    # Find sign in button
-    signInButton = browser.find_element_by_name("commit")
-    # click the sign in button
-    signInButton.click()
-
-    reportPage = browser.get("https://video.springserve.com/reports")
 
     a_year1 = str(the_time.year % 100)
     a_month1 = str(the_time.month)
@@ -53,75 +37,209 @@ class SpringServe:
     a_month2 = str(the_time.month)
     a_day2 = str(the_time.day - 2)
 
-
-    # Get the report page and run the report
-    date_report_page = "https://video.springserve.com/reports?date_range=Custom&custom_date_range=" + a_month1 + "%2F" + a_day1 + "%2F" + a_year1 + "+00%3A00+-+" + a_month2 + "%2F" + a_day2 + "%2F" + a_year2 + "+23%3A00&interval=Day&timezone=America%2FNew_York&dimensions%5B%5D=supply_tag_id"
-    browser.get(date_report_page)
-    runReportButton = browser.find_element_by_name("commit")
-    runReportButton.click()
-
-    # Webscrape the data and export to .csv files
-    sleep(3)
-    table_row_data = browser.find_elements_by_tag_name("tr")
-
-    # Sleep more if table is not fully loaded
-    if(len(table_row_data) < 17):
-        sleep(3)
-        table_row_data = browser.find_elements_by_tag_name("tr")
-
-    # Get the data I want
-    table_row_data = table_row_data[10:]
-    # Remove the totals row
-    del table_row_data[-1]
+    location_of_file = "/Users/noah.p/Documents/Daily_Reports_July_12/SpringServe-July_12/"
+    #location_of_file = "/Users/noah.p/Desktop/TestFolder/"
 
 
-    dictOfT = {"MX": "Taboola MX $1 Floor".replace(" ",""), "AUS": "Taboola AUS $2.5 Floor".replace(" ",""), "JS-AUS": "Taboola-JS-AUS $2.5 Floor".replace(" ",""),
-            "BR": "Taboola BR $1 Floor".replace(" ", ""), "Anglo": "Taboola Anglo +FR +DE SP $4 Floor".replace(" ",""),"JS-Anglo": "Taboola-JS- Anglo +FR +DE SP $4 Floor".replace(" ", "")
+    dict_T = {"Taboola-MX$1Floor": "Taboola MX $1 Floor".replace(" ", "_"), "TaboolaAUS$2.5Floor": "Taboola AUS $2.5 Floor".replace(" ", "_"),
+               "Taboola-JS-AUS$2.5Floor": "Taboola-JS-AUS $2.5 Floor".replace(" ", "_"),
+               "TaboolaBR$1Floor": "Taboola BR $1 Floor".replace(" ", "_"),
+               "TaboolaAnglo+FR+DESP$4Floor": "Taboola Anglo +FR +DE SP $4 Floor".replace(" ", "_"),
+               "Taboola-JS-Anglo+FR+DESP$4Floor": "Taboola-JS-Anglo +FR +DE SP $4 Floor".replace(" ", "_")
             }
-    rev_list = []
-    imp_list = []
-    name_list = []
 
-    for table_row in table_row_data:
-        table_row = table_row.text
-        current_row = table_row.split(" ")
-        lengthOfTRow = len(current_row)
+    def __init__(self, end_date, date_post, location_of_file, dict_T):
+        """
+        Constructor
+        :param end_date:
+        :param date_post:
+        :param location_of_file:
+        :param dict_T:
+        """
+        self.end_date = end_date
+        self.date_post = date_post
+        self.location_of_file = location_of_file
+        self.dict_T = dict_T
 
-        if(lengthOfTRow is 15):
-            name = current_row[3:6]
-            name = name[0] + "_" + name[1] + "_" + name[2]
-            imp = current_row[9].replace(",", "")
-            rev = current_row[11].replace('$', "")
-            rev_list.append(rev)
-            imp_list.append(imp)
-            name_list.append(name)
+    def start_browser(self):
+        """
+        Initilizes the browser
+        :return the browser:
+        """
+        #browser = webdriver.Firefox()
+        browser = webdriver.PhantomJS()
+        browser.set_window_size(1124, 1000)
 
-        elif(lengthOfTRow is 16):
-            name = current_row[3:7]
-            name = name[0] + "_" + name[1] + "_" + name[2] + "_" + name[3]
-            imp = current_row[10].replace(",", "")
-            rev = current_row[12].replace('$', "")
-            rev_list.append(rev)
-            imp_list.append(imp)
-            name_list.append(name)
+        browser.wait = WebDriverWait(browser, 5)
+        return browser
 
-        elif(lengthOfTRow is 19):
-            name = current_row[3:10]
-            name = name[0] + "_" + name[1] + "_" + name[2] + "_" + name[3] + "_" + name[4] + "_" + name[5] + "_" + name[6]
-            imp = current_row[13].replace(",", "")
-            rev = current_row[15].replace('$', "")
-            rev_list.append(rev)
-            imp_list.append(imp)
-            name_list.append(name)
+    def lookup(self, browser):
+        """
+        Login to website and navigate to report page
+        :param browser:
+        :return:
+        """
+        try:
+            url = "https://video.springserve.com/"
+            loginPage = browser.get(url)
+        except Exception:
+            raise Exception("Error- SpringServe:Failed to load page")
 
-        else:
-            print("Error")
+        try:
+            username = browser.wait.until(EC.visibility_of_element_located((By.ID, "user_email")))
+            password = browser.wait.until(EC.visibility_of_element_located((By.ID, "user_password")))
 
-        location_of_file = "/Users/noah.p/Desktop/TestFolder/"
-        # Write to csv file
-        with open(location_of_file + name + "_" + date_post + ".csv", "w") as csv_file:
-            fileWriter = csv.writer(csv_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            fileWriter.writerow(["Date", "Impressions", "Revenue"])
-            fileWriter.writerow([end_date, imp, rev])
+            # Type in username and password
+            username.send_keys("or.ben@taboola.com")
+            password.send_keys("Orben1234!")
+
+            # Find sign in button and try to click it
+            signInButton = browser.wait.until(EC.element_to_be_clickable((By.NAME, "commit")))
+            try:
+                signInButton.click()
+                reportPage = "https://video.springserve.com/reports"
+                browser.get(reportPage)
+                if browser.current_url == reportPage:
+                    print("Logged in successfully")
+            except ElementNotVisibleException:
+                signInButton = browser.wait.until(EC.visibility_of_element_located((By.ID, "loginButton")))
+                signInButton.click()
+        except TimeoutException:
+            print("Login Box or Button not found on SpringServe website")
+            print("Login Failed")
+
+    def getData(self, browser):
+        """
+        Gets the data from the site
+        :param browser:
+        :return:
+        """
+        # Get the report page and run the report
+        date_report_page = "https://video.springserve.com/reports?date_range=Custom&custom_date_range=" + SpringServe.a_month1 + "%2F" + SpringServe.a_day1 + "%2F" + SpringServe.a_year1 + "+00%3A00+-+" + SpringServe.a_month2 + "%2F" + SpringServe.a_day2 + "%2F" + SpringServe.a_year2 + "+23%3A00&interval=Day&timezone=America%2FNew_York&dimensions%5B%5D=supply_tag_id"
+        browser.get(date_report_page)
+        # If not loaded correctly try again
+        if not(browser.current_url == date_report_page):
+            sleep(3)
+            browser.get(date_report_page)
+
+        try:
+            runReportButton = browser.wait.until(EC.element_to_be_clickable((By.NAME, "commit")))
+            try:
+                runReportButton.click()
+            except Exception:
+                raise Exception("Error- SpringServe: Failed to click run report button")
+        except Exception:
+            raise Exception("Error- SpringServe: Failed to find run report button")
+
+        try:
+            sleep(2)
+            #table_row_data = browser.find_elements_by_tag_name("tr")
+            table_row_data = browser.wait.until(EC.presence_of_all_elements_located((By.TAG_NAME, "tr")))
+            # Sleep more if table is not fully loaded(try at most 3 more times)
+            y = 0
+            while(len(table_row_data) < 17 and y < 3):
+                sleep(3)
+                table_row_data = browser.find_elements_by_tag_name("tr")
+                y += 1
+        except Exception:
+            raise Exception("Error- SpringServe: the table was not found")
+
+        # Get the data I want
+        table_row_data = table_row_data[10:]
+        # Remove the totals row
+        del table_row_data[-1]
+
+        rev_list = []
+        imp_list = []
+        name_list = []
+        try:
+            for table_row in table_row_data:
+                table_row = table_row.text
+                current_row = table_row.split(" ")
+                lengthOfTRow = len(current_row)
+
+                if(lengthOfTRow is 15):
+                    name = current_row[3:6]
+                    #name = name[0] + name[1] + name[2]
+                    name = "".join(name)
+                    imp = current_row[9]
+                    rev = current_row[11]
+                    rev_list.append(rev)
+                    imp_list.append(imp)
+                    name_list.append(name)
+
+                elif(lengthOfTRow is 16):
+                    name = current_row[3:7]
+                    #name = name[0] + name[1] + name[2] + name[3]
+                    name = "".join(name)
+                    imp = current_row[10]
+                    rev = current_row[12]
+                    rev_list.append(rev)
+                    imp_list.append(imp)
+                    name_list.append(name)
+
+                elif(lengthOfTRow is 19):
+                    name = current_row[3:10]
+                    #name = name[0] + name[1] + name[2] + name[3] + name[4] + name[5] + name[6]
+                    name = "".join(name)
+                    imp = current_row[13]
+                    rev = current_row[15]
+                    rev_list.append(rev)
+                    imp_list.append(imp)
+                    name_list.append(name)
+
+                else:
+                    print("Error- SpringServe: Table data was not found")
+        except Exception:
+            print("Error- SpringServe: Some of the table data was not correctly scraped")
+
+        return name_list, imp_list, rev_list
+
+
+def main():
+    ssr = SpringServe(SpringServe.end_date, SpringServe.date_post, SpringServe.location_of_file, SpringServe.dict_T)
+    pp = PulsePoint(ssr.end_date, ssr.date_post, ssr.location_of_file, ssr.dict_T)
+
+    browser = ssr.start_browser()
+    ssr.lookup(browser)
+    name_list_final, imp_list_final, rev_list_final = ssr.getData(browser)
+    # If the return lists are empty then there must be an error so try again
+    if len(name_list_final) is 0 or len(imp_list_final) is 0 or len(rev_list_final) is 0:
+        name_list_final, imp_list_final, rev_list_final = ssr.getData(browser)
+    pp.makeCSV(ssr.location_of_file, ssr.dict_T, name_list_final, imp_list_final, rev_list_final,ssr.end_date, ssr.date_post)
     browser.quit()
     print("Done!")
+    print("SpringServe program took --- %s seconds ---" % (time.time() - SpringServe.start_time_ssr))
+
+if __name__ == "__main__":
+    # stuff only to run when not called via 'import' here
+    main()
+
+"""    
+def makeCSV2(self,location_of_file, dict_T, name_list, imp_list,rev_list, end_date,date_post):
+    
+        Makes CSV file from webscraped data
+        :param location_of_file:
+        :param dict_T:
+        :param name_list:
+        :param imp_list:
+        :param rev_list:
+        :param end_date:
+        :param date_post:
+        :return:
+        
+        numberOfItems = len(name_list)
+
+        # Write to csv file
+        q = 0
+        while q < numberOfItems:
+            name_of_file = name_list[q]
+            imp = imp_list[q].replace(",","")
+            rev = rev_list[q].replace("$","")
+
+            with open(location_of_file + dict_T[name_of_file] + "_" + date_post + ".csv", "w") as csv_file:
+                fileWriter = csv.writer(csv_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+                fileWriter.writerow(["Date", "Impressions", "Revenue"])
+                fileWriter.writerow([end_date, imp, rev])
+            q += 1
+            """
