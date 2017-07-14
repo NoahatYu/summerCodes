@@ -83,6 +83,7 @@ class PulsePoint:
                 print("Announcement: " + alertOnPage.text)
             except:
                 pass
+
             #username = browser.find_element_by_id("UserName")
             #password = browser.find_element_by_id("Password")
             username = browser.wait.until(EC.visibility_of_element_located((By.ID, "UserName")))
@@ -212,7 +213,7 @@ class PulsePoint:
 
             name_of_file = name_of_file.replace(" ","")
 
-            with open(location_of_file + dict_T[name_of_file] + "-" + date_post + ".csv", "w") as csv_file:
+            with open(location_of_file + dict_T[name_of_file] + "|" + date_post.replace(" ", "_") + ".csv", "w") as csv_file:
                 fileWriter = csv.writer(csv_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
                 fileWriter.writerow(["Date", "Impressions", "Revenue"])
                 fileWriter.writerow([end_date, imp, rev])
