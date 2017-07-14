@@ -62,9 +62,11 @@ class Optimatic:
         Initilizes the browser
         :return the browser:
         """
-        browser = webdriver.Firefox()
-        #browser = webdriver.PhantomJS()
-        #browser.set_window_size(1124, 1000)
+        # NOTE: THIS MUST RUN PHANTOMJS
+        #browser = webdriver.Firefox()
+        browser = webdriver.PhantomJS()
+        #browser.maximize_window()
+        browser.set_window_size(1124, 1000)
 
         browser.wait = WebDriverWait(browser, 5)
         return browser
@@ -286,7 +288,7 @@ class Optimatic:
             indexer = 0
 
             # Write to csv file
-            with open(location_of_file + self.dict_T[current_Taboola] + "_" + date_post + ".csv", "w") as csv_file:
+            with open(location_of_file + self.dict_T[current_Taboola] + "|" + date_post.replace(" ", "_") + ".csv", "w") as csv_file:
                 fileWriter = csv.writer(csv_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
                 fileWriter.writerow(["Date", "Site", "Impressions", "Revenue"])
                 # Write to file
