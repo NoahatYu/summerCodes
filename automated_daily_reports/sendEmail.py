@@ -56,14 +56,14 @@ class sendEmails:
     def sendEmail(self,taboola_Dict):
 
         COMMASPACE = ', '
-        sendDirectory = os.listdir("/Users/noah.p/Desktop/TestFolder/TestFolder2")
+        sendDirectory = os.listdir("")
         # Delete .ds store on mac
         del sendDirectory[0]
         lengthOfPP = len(sendDirectory)
 
-        sender = 'noah.p@taboola.com'  # from_address = "noah.p@taboola.com"
-        gmail_password = 'whviduonpebrdxnl'  # whviduonpebrdxnl
-        recipients = ["noahpotash@gmail.com"]  # cm-autoreportdex@taboola.com EMAIL ADDRESSES HERE SEPARATED BY COMMAS - # to_address = "daniel.t@taboola.com"
+        sender = ''  # from_address = ""
+        gmail_password = ""
+        recipients = [""]  #  EMAIL ADDRESSES HERE SEPARATED BY COMMAS - 
         # Create the enclosing (outer) message
         outer = MIMEMultipart()
         outer['To'] = COMMASPACE.join(recipients)
