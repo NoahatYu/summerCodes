@@ -14,7 +14,6 @@ from selenium.webdriver.support.ui import WebDriverWait  # available since 2.4.0
 
 
 class SpringServe:
-    start_time_ssr = time.time()
     # Monday is 0 and Sunday is 6
     DayOfTheWeek = datetime.today().weekday()
     # Get the current Date
@@ -22,9 +21,11 @@ class SpringServe:
     date_1 = datetime.strptime(currentDate, "%m/%d/%Y")
 
     # Move the current date back two days
+    # In the mm/dd/yyyy format
     end_date = date_1 - timedelta(days=2)
     end_date = end_date.strftime('%m/%d/%Y')
 
+    # This one is in "Month name day, full year ex.July 12,2017
     date_post = datetime.now() - timedelta(days=2)
     date_post = date_post.strftime(("%B %d, %Y"))
 
@@ -37,8 +38,7 @@ class SpringServe:
     a_month2 = str(the_time.month)
     a_day2 = str(the_time.day - 2)
 
-    location_of_file = "/Users/noah.p/Documents/Daily_Reports_July_12/SpringServe-July_12/"
-    #location_of_file = "/Users/noah.p/Desktop/TestFolder/"
+    location_of_file = "/Users/noah.p/Desktop/DailyReports/"
 
 
     dict_T = {"Taboola-MX$1Floor": "Taboola MX $1 Floor".replace(" ", "_"), "TaboolaAUS$2.5Floor": "Taboola AUS $2.5 Floor".replace(" ", "_"),
@@ -197,6 +197,10 @@ class SpringServe:
 
 
 def main():
+    """
+    Main method
+    :return:
+    """
     ssr = SpringServe(SpringServe.end_date, SpringServe.date_post, SpringServe.location_of_file, SpringServe.dict_T)
     pp = PulsePoint(ssr.end_date, ssr.date_post, ssr.location_of_file, ssr.dict_T)
 
@@ -208,38 +212,7 @@ def main():
         name_list_final, imp_list_final, rev_list_final = ssr.getData(browser)
     pp.makeCSV(ssr.location_of_file, ssr.dict_T, name_list_final, imp_list_final, rev_list_final,ssr.end_date, ssr.date_post)
     browser.quit()
-    print("Done!")
-    print("SpringServe program took --- %s seconds ---" % (time.time() - SpringServe.start_time_ssr))
 
 if __name__ == "__main__":
     # stuff only to run when not called via 'import' here
     main()
-
-"""    
-def makeCSV2(self,location_of_file, dict_T, name_list, imp_list,rev_list, end_date,date_post):
-    
-        Makes CSV file from webscraped data
-        :param location_of_file:
-        :param dict_T:
-        :param name_list:
-        :param imp_list:
-        :param rev_list:
-        :param end_date:
-        :param date_post:
-        :return:
-        
-        numberOfItems = len(name_list)
-
-        # Write to csv file
-        q = 0
-        while q < numberOfItems:
-            name_of_file = name_list[q]
-            imp = imp_list[q].replace(",","")
-            rev = rev_list[q].replace("$","")
-
-            with open(location_of_file + dict_T[name_of_file] + "_" + date_post + ".csv", "w") as csv_file:
-                fileWriter = csv.writer(csv_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-                fileWriter.writerow(["Date", "Impressions", "Revenue"])
-                fileWriter.writerow([end_date, imp, rev])
-            q += 1
-            """
