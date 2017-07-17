@@ -18,7 +18,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC  # available since 2.26.0
 
 class PulsePoint:
-    start_time_pp = time.time()
+
     #TODO: Log all results, such as errors and importantly the time it takes to run the script
     """Gets all the dates and times that are needed for this class"""
     # Monday is 0 and Sunday is 6
@@ -28,15 +28,17 @@ class PulsePoint:
     date_1 = datetime.strptime(currentDate, "%m/%d/%Y")
 
     # Move the current date back two days
+    # In the mm/dd/yyyy format
     end_date = date_1 - timedelta(days=2)
     end_date = end_date.strftime('%m/%d/%Y')
 
+    # This one is in "Month name day, full year ex.July 12,2017
     date_post = datetime.now() - timedelta(days=2)
     date_post = date_post.strftime(("%B %d, %Y"))
 
+
     the_time = datetime.now()
-    location_of_file = "/Users/noah.p/Documents/Daily_Reports_July_12/PulsePoint_July_12/"
-    #location_of_file = "/Users/noah.p/Desktop/TestFolder/"
+    location_of_file = "/Users/noah.p/Desktop/DailyReports/"
 
 
     dict_T = {
@@ -219,6 +221,10 @@ class PulsePoint:
                 fileWriter.writerow([end_date, imp, rev])
             q += 1
 def main():
+    """
+    Main method
+    :return:
+    """
     pp = PulsePoint(PulsePoint.end_date,PulsePoint.date_post, PulsePoint.location_of_file,PulsePoint.dict_T)
     browser = pp.init_browser()
     pp.lookup(browser)
@@ -228,8 +234,6 @@ def main():
         name_list_final, imp_list_final, rev_list_final = pp.getData(browser)
     pp.makeCSV(pp.location_of_file, pp.dict_T, name_list, imp_list, rev_list, pp.end_date, pp.date_post)
     browser.quit()
-    print("Done!")
-    print("PulsePoint program took --- %s seconds ---" % (time.time() - PulsePoint.start_time_pp))
 
 if __name__ == "__main__":
     # stuff only to run when not called via 'import' here
