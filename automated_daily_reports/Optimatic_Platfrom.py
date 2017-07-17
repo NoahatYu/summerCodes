@@ -13,7 +13,6 @@ from selenium.webdriver.support import expected_conditions as EC # available sin
 from bs4 import BeautifulSoup
 
 class Optimatic:
-    start_time_op = time.time()
     # The calender is weird so got to go back a month
     # Monday is 0 and Sunday is 6
     DayOfTheWeek = datetime.today().weekday()
@@ -27,6 +26,8 @@ class Optimatic:
 
     date_post = datetime.now() - timedelta(days=2)
     date_post = date_post.strftime(("%B %d, %Y"))
+
+
     the_time = datetime.now()
     yesterday = the_time.day - 1
 
@@ -283,19 +284,22 @@ class Optimatic:
                 paid_impressions_list[x] = paid_impressions_list[x].split(":").pop().replace(" ", "")
                 revenue_list[x] = revenue_list[x].split(":").pop().replace(" ", "")
                 x += 1
-            location_of_file = "/Users/noah.p/Documents/Daily_Reports_July_12/Opt-July_12/"
-            #location_of_file = "/Users/noah.p/Desktop/TestFolder/"
+            location_of_file = "/Users/noah.p/Desktop/DailyReports/"
             indexer = 0
 
-            # Write to csv file
-            with open(location_of_file + self.dict_T[current_Taboola] + "|" + date_post.replace(" ", "_") + ".csv", "w") as csv_file:
-                fileWriter = csv.writer(csv_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-                fileWriter.writerow(["Date", "Site", "Impressions", "Revenue"])
-                # Write to file
-                while(indexer < (numberOfElements - 1)):
-                    fileWriter.writerow([end_date, domain_list[indexer], paid_impressions_list[indexer], revenue_list[indexer]])
-                    indexer += 1
-            q += 1
+            # Makes sure to not create a csv file for one with no data
+            if not(len(paid_impressions_list) is 0 and len(domain_list) is 0 and len(revenue_list) is 0):
+                # Write to csv file
+                with open(location_of_file + self.dict_T[current_Taboola] + "|" + date_post.replace(" ", "_") + ".csv", "w") as csv_file:
+                    fileWriter = csv.writer(csv_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+                    fileWriter.writerow(["Date", "Site", "Impressions", "Revenue"])
+                    # Write to file
+                    while(indexer < (numberOfElements - 1)):
+                        fileWriter.writerow([end_date, domain_list[indexer], paid_impressions_list[indexer], revenue_list[indexer]])
+                        indexer += 1
+                q += 1
+            else:
+                q += 1
 
     def prevoiusMonth(self, browser, the_time):
         """
@@ -317,6 +321,10 @@ class Optimatic:
             raise Exception("Error-Optimatic: could not find one month back button on calender")
 
 def main():
+    """
+    Main method
+    :return:
+    """
     op = Optimatic(Optimatic.end_date, Optimatic.date_post, Optimatic.the_time, Optimatic.dict_T)
     browser = op.start_browser()
     op.lookup(browser)
@@ -326,8 +334,6 @@ def main():
         all_list_containers = op.fillInDateAndRunReport(browser, op.the_time)
     op.getDataAndMakeCSV(browser,op.end_date,op.date_post)
     browser.quit()
-    print("Done!")
-    print("Optimatic program took --- %s seconds ---" % (time.time() - Optimatic.start_time_op))
 
 
 if __name__ == "__main__":
