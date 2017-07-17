@@ -16,8 +16,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 
 class LKQD:
-    start_time_elka = time.time()
-
     # Monday is 0 and Sunday is 6
     DayOfTheWeek = datetime.today().weekday()
 
@@ -31,8 +29,8 @@ class LKQD:
 
     date_post = datetime.now() - timedelta(days=2)
     date_post = date_post.strftime(("%B %d, %Y"))
-    #location_of_file = "/Users/noah.p/Desktop/TestFolder/"
-    location_of_file = "/Users/noah.p/Documents/LKQD_July_12/LKQD_July_12/"
+
+    location_of_file = "/Users/noah.p/Desktop/DailyReports/"
 
     #browser = webdriver.PhantomJS()
     #browser.set_window_size(1120, 550)
@@ -287,6 +285,10 @@ class LKQD:
 
 
 def main():
+    """
+    Main method
+    :return:
+    """
     pp = PulsePoint(PulsePoint.end_date, PulsePoint.date_post, PulsePoint.location_of_file, PulsePoint.dict_T)
     lkqd = LKQD(LKQD.end_date,LKQD.date_post,LKQD.location_of_file,LKQD.dict_T)
     browser = lkqd.start_browser()
@@ -297,9 +299,6 @@ def main():
         name_list_final, imp_list_final, rev_list_final = lkqd.getData(browser)
     pp.makeCSV(lkqd.location_of_file, lkqd.dict_T, final_name_list, final_imp_list, final_rev_list, pp.end_date, pp.date_post)
     browser.quit()
-    print("Done!")
-    print("LKQD program took --- %s seconds ---" % (time.time() - LKQD.start_time_elka))
-
 
 
 if __name__ == "__main__":
