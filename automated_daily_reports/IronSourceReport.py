@@ -19,7 +19,6 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC  # available since 2.26.0
 
 class IronSource:
-    start_time_irs = time.time()
     # Monday is 0 and Sunday is 6
     DayOfTheWeek = datetime.today().weekday()
     # Get the current Date
@@ -30,8 +29,12 @@ class IronSource:
     end_date = date_1 - timedelta(days=2)
     end_date = end_date.strftime('%m/%d/%Y')
 
+    #end_date = "07/14/2017"
+
     date_post = datetime.now() - timedelta(days=2)
     date_post = date_post.strftime(("%B %d, %Y"))
+
+    #date_post = "July 14, 2017"
 
     the_time = datetime.now()
 
@@ -43,7 +46,7 @@ class IronSource:
     a_month2 = str(the_time.month).zfill(2)
     a_day2 = str(the_time.day - 2).zfill(2)
 
-    location_of_file = "/Users/noah.p/Documents/Daily_Reports_July_12/IronSource-July_12/"
+    location_of_file = "/Users/noah.p/Documents/Daily_Reports_July_13/IronSource-July_13/"
     #location_of_file = "/Users/noah.p/Desktop/TestFolder/"
 
     # Don't edit name of entires they are name with extra spaces and whitespace on purpose
@@ -166,8 +169,6 @@ def main():
         name_list_final, imp_list_final, rev_list_final = irs.getData(browser)
     pp.makeCSV(irs.location_of_file, irs.dict_T, name_list_final, imp_list_final, rev_list_final, irs.end_date,irs.date_post)
     #browser.quit()
-    print("IronSource program took --- %s seconds ---" % (time.time() - IronSource.start_time_irs))
-    print("Done!")
 
 if __name__ == "__main__":
     main()
