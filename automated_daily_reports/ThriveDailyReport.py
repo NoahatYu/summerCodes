@@ -35,6 +35,7 @@ class Thrive:
 
     the_time = datetime.now()
 
+
     a_year1 = str(the_time.year % 100)
     a_month1 = str(the_time.month)
     a_day1 = str(the_time.day - 2)
@@ -42,13 +43,13 @@ class Thrive:
     a_month2 = str(the_time.month)
     a_day2 = str(the_time.day - 2)
 
+
     dict_T = {
         "TaboolaMWJSTier1ENG2": "Thrive_Mobile_2",
         "TaboolaDesktop320x180SPENG3": "Thrive_Direct_Desktop_5"
     }
 
-    location_of_file = "/Users/noah.p/Documents/Daily_Reports_July_12/Thrive-July_12/"
-    #location_of_file = "/Users/noah.p/Desktop/TestFolder/"
+    location_of_file = "/Users/noah.p/Desktop/DailyReports/"
 
     def __init__(self, end_date, date_post, location_of_file, dict_T):
         """
@@ -190,8 +191,6 @@ def main():
         name_list_final, imp_list_final, rev_list_final = tr.getData(browser)
     pp.makeCSV(tr.location_of_file, tr.dict_T, name_list_final, imp_list_final, rev_list_final,tr.end_date, tr.date_post)
     browser.quit()
-    print("Thrive program took --- %s seconds ---" % (time.time() - Thrive.start_time_tr))
-    print("Done!")
 
 
 if __name__ == "__main__":
