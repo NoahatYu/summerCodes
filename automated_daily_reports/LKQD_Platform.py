@@ -97,8 +97,8 @@ class LKQD:
             password = browser.wait.until(EC.visibility_of_element_located((By.ID, "password")))
             signInButton = browser.wait.until(EC.element_to_be_clickable((By.TAG_NAME, "button")))
 
-            username.send_keys("taboola_selectmedia")
-            password.send_keys("Matityahu123456")
+            username.send_keys("username")
+            password.send_keys("password")
 
             #signInButton = browser.find_element_by_tag_name("button")
             try:
