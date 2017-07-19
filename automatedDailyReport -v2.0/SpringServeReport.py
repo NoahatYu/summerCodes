@@ -196,7 +196,9 @@ class SpringServe:
                     rev_list.append(rev)
                     imp_list.append(imp)
                     name_list.append(name)
-
+                elif(lengthOfTRow is 1):
+                    #do nothing
+                    pass
                 else:
                     logger.error("SpringServe: Some Table data was not found and might be missing")
                     print("Error- SpringServe: Some Table data was not found and might be missing")
