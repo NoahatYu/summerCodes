@@ -91,8 +91,8 @@ class Thrive:
             username = browser.wait.until(EC.visibility_of_element_located((By.ID, "user_email")))
             password = browser.wait.until(EC.visibility_of_element_located((By.ID, "user_password")))
 
-            usernameThrive = "eedo.b@taboola.com"
-            passwordThrive = "taboolaspring22!"
+            usernameThrive = ""
+            passwordThrive = ""
             # Type in username and password
             username.send_keys(usernameThrive)
             password.send_keys(passwordThrive)
