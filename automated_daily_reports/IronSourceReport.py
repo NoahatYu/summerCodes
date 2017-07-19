@@ -96,8 +96,8 @@ class IronSource:
             username = loginInputFields[0]
             password = loginInputFields[1]
 
-            username.send_keys("TaboolaEedo")
-            password.send_keys("Taboola123!")
+            username.send_keys("username")
+            password.send_keys("password")
             # Find sign in button
             signInButton = browser.find_element_by_class_name("btn")
 
