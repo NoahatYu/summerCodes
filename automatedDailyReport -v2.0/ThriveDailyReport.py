@@ -2,6 +2,8 @@ import re
 import os
 import csv
 import time
+import requests
+#import sendEmail
 from time import sleep
 from datetime import datetime
 from datetime import timedelta
@@ -171,11 +173,15 @@ class Thrive:
                 #name = name[0] + "_" + name[1] + "_" + name[2] + "_" + name[3] + "_" + name[4] + "_" + name[5] + name[6] + "_" + name[7] + "_" + name[8] + "_" + name[9]
                 name = "".join(name)
                 name = name.replace('|', "")
-                imp = current_row[16].replace(",", "")
-                rev = current_row[18].replace('$', "")
-                rev_list.append(rev)
-                imp_list.append(imp)
-                name_list.append(name)
+                if not(table_row == ''):
+                    imp = current_row[16].replace(",", "")
+                    rev = current_row[18].replace('$', "")
+                    rev_list.append(rev)
+                    imp_list.append(imp)
+                    name_list.append(name)
+                else:
+                    # Do nothing
+                    pass
         except Exception:
             logger.error("Thrive: Some of the table data was not correctly scraped")
             raise Exception("Error-Thrive: Some of the table data was not correctly scraped")
