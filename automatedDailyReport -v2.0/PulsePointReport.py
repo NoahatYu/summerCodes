@@ -97,8 +97,8 @@ class PulsePoint:
             signInButton = browser.wait.until(EC.element_to_be_clickable((By.ID, "LoginButton")))
 
             # Type in username and password
-            username.send_keys("Taboola_VideoTag")
-            password.send_keys("Belk09po")
+            username.send_keys("username")
+            password.send_keys("password")
             # Find sign in button and try to click it
             try:
                 signInButton.click()
