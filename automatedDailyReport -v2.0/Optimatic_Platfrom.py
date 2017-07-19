@@ -91,8 +91,8 @@ class Optimatic:
             password = browser.wait.until(EC.visibility_of_element_located((By.ID, "txtPassword")))
             #username = browser.find_element_by_id("txtUserName")
             #password = browser.find_element_by_id("txtPassword")
-            username.send_keys("taboola@selectmedia")
-            password.send_keys("Banana")
+            username.send_keys("username")
+            password.send_keys("password")
             # Find sign in button, browser.find_element_by_tag_name("button")
             signInButton = browser.wait.until(EC.visibility_of_element_located((By.TAG_NAME, "button")))
             try:
