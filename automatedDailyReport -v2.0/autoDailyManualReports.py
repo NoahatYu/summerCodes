@@ -1,3 +1,4 @@
+import logging
 import time
 from time import time
 from sendEmail import main
@@ -7,6 +8,7 @@ import Optimatic_Platfrom
 import LKQD_Platform
 import ThriveDailyReport
 import IronSourceReport
+import SekindoDailyReport
 
 class AutoDailyManualReports:
     """
@@ -20,8 +22,13 @@ class AutoDailyManualReports:
     lk = 0
     th = 0
     ir = 0
+    sk = 0
 
     start_time_total = time()
+    logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsLog/AutoDailyManualReportslogs.log/"
+    logName = "Auto"
+    logging.basicConfig(filename=logFile, level=logging.INFO)
+    logger = logging.getLogger(logName)
 
     start_time_pp = time()
     print("Running PulsePoint")
@@ -35,9 +42,11 @@ class AutoDailyManualReports:
             pp += 1
             if pp is 3:
                 print("ERROR: PulsePoint did not run")
+                logger.error("PulsePont did not run")
             else:
                 pass
     print("DONE")
+    logger.info("PulsePoint program took --- %s seconds ---" % (time() - start_time_pp))
     print("PulsePoint program took --- %s seconds ---" % (time() - start_time_pp))
     print("----------------------")
 
@@ -52,10 +61,12 @@ class AutoDailyManualReports:
         except:
             ss += 1
             if ss is 3:
+                logger.error("SpringServe did not run")
                 print("ERROR: Spring Serve did not run")
             else:
                 pass
     print("DONE")
+    logger.info("SpringServe program took --- %s seconds ---" % (time() - start_time_ss))
     print("SpringServe program took --- %s seconds ---" % (time() - start_time_ss))
     print("----------------------")
 
@@ -70,10 +81,12 @@ class AutoDailyManualReports:
         except:
             op += 1
             if op is 3:
+                logger.error("Optimatic did not run")
                 print("ERROR: Optimatic did not run")
             else:
                 pass
     print("DONE")
+    logger.info("Optimatic program took --- %s seconds ---" % (time() - start_time_op))
     print("Optimatic program took --- %s seconds ---" % (time() - start_time_op))
     print("----------------------")
 
@@ -88,10 +101,12 @@ class AutoDailyManualReports:
         except:
             lk += 1
             if lk is 3:
+                logger.error("LKQD did not run")
                 print("ERROR: LKQD did not run")
             else:
                 pass
     print("DONE")
+    logger.info("LKQD program took --- %s seconds ---" % (time() - start_time_elka))
     print("LKQD program took --- %s seconds ---" % (time() - start_time_elka))
 
     print("----------------------")
@@ -106,10 +121,11 @@ class AutoDailyManualReports:
         except:
             th += 1
             if th is 3:
+                logger.error("Thive did not run")
                 print("ERROR: Thrive did not run")
             else:
                 pass
-
+    logger.info("Thrive program took --- %s seconds ---" % (time() - start_time_tr))
     print("Thrive program took --- %s seconds ---" % (time() - start_time_tr))
     print("----------------------")
 
@@ -124,12 +140,31 @@ class AutoDailyManualReports:
         except:
             ir += 1
             if ir is 3:
+                logger.error("IronSource did not run")
                 print("ERROR: IronSource did not run")
+    logger.info("IronSource program took --- %s seconds ---" % (time() - start_time_ir))
     print("IronSource program took --- %s seconds ---" % (time() - start_time_ir))
+
+
+    start_time_sk = time()
+    print("Running Sekindo")
+    result = 0
+    while result is 0 and sk < 3:
+        try:
+            # Try 3 times before giving up
+            SekindoDailyReport.main()
+            result = 1
+        except:
+            sk += 1
+            if sk is 3:
+                logger.error("Sekindo did not run")
+                print("ERROR: Sekindo did not run")
+    logger.info("Sekindo program took --- %s seconds ---" % (time() - start_time_ir))
+    print("Sekindo program took --- %s seconds ---" % (time() - start_time_ir))
 
     print("Sending Emails...")
     #sendEmail's main method
     main()
     print("Done")
-
+    logger.info("The Daily Manual Reports program took --- %s seconds ---" % (time() - start_time_total))
     print("The Daily Manual Reports program took --- %s seconds ---" % (time() - start_time_total))
