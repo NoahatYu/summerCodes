@@ -304,7 +304,7 @@ def main():
     lkqd.fillInDateAndRunReport(browser, lkqd.end_date,logger)
     final_name_list, final_imp_list, final_rev_list = lkqd.getData(browser,logger)
     if len(final_name_list) is 0 or len(final_imp_list) is 0 or len(final_rev_list) is 0:
-        name_list_final, imp_list_final, rev_list_final = lkqd.getData(browser,logger)
+        final_name_list, final_imp_list, final_rev_list = lkqd.getData(browser,logger)
     pp.makeCSV(lkqd.location_of_file, lkqd.dict_T, final_name_list, final_imp_list, final_rev_list, lkqd.end_date, lkqd.date_post)
     browser.quit()
 
