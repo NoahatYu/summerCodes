@@ -270,7 +270,7 @@ def main():
     pp.fillInDateAndRunReport(browser, pp.end_date)
     name_list, imp_list, rev_list = pp.getData(browser, logger)
     if len(name_list) is 0 or len(imp_list) is 0 or len(rev_list) is 0:
-        name_list_final, imp_list_final, rev_list_final = pp.getData(browser,logger)
+        name_list, imp_list, rev_list = pp.getData(browser,logger)
 
     pp.makeCSV(pp.location_of_file, pp.dict_T, name_list, imp_list, rev_list, pp.end_date, pp.date_post)
     browser.quit()
