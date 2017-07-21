@@ -95,8 +95,8 @@ class IronSource:
             username = loginInputFields[0]
             password = loginInputFields[1]
 
-            username.send_keys("username")
-            password.send_keys("password")
+            username.send_keys("")
+            password.send_keys("")
             # Find sign in button
             signInButton = browser.find_element_by_class_name("btn")
 
@@ -181,4 +181,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
