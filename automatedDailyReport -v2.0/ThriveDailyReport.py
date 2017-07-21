@@ -94,8 +94,8 @@ class Thrive:
             username = browser.wait.until(EC.visibility_of_element_located((By.ID, "user_email")))
             password = browser.wait.until(EC.visibility_of_element_located((By.ID, "user_password")))
 
-            usernameThrive = "username"
-            passwordThrive = "password"
+            usernameThrive = ""
+            passwordThrive = ""
             # Type in username and password
             username.send_keys(usernameThrive)
             password.send_keys(passwordThrive)
@@ -171,17 +171,23 @@ class Thrive:
                 lengthOfTRow = len(current_row)
                 name = current_row[3:13]
                 #name = name[0] + "_" + name[1] + "_" + name[2] + "_" + name[3] + "_" + name[4] + "_" + name[5] + name[6] + "_" + name[7] + "_" + name[8] + "_" + name[9]
-                name = "".join(name)
-                name = name.replace('|', "")
-                if not(table_row == ''):
-                    imp = current_row[16].replace(",", "")
-                    rev = current_row[18].replace('$', "")
-                    rev_list.append(rev)
-                    imp_list.append(imp)
-                    name_list.append(name)
-                else:
-                    # Do nothing
+                try:
+                    name = "".join(name)
+                    name = name.replace('|', "")
+                    # Makes sure there is no empty table row value
+                    if not (table_row == ''):
+                        imp = current_row[16].replace(",", "")
+                        rev = current_row[18].replace('$', "")
+                        rev_list.append(rev)
+                        imp_list.append(imp)
+                        name_list.append(name)
+                    else:
+                        # Do nothing
+                        pass
+                except:
                     pass
+                    # Do nothing
+
         except Exception:
             logger.error("Thrive: Some of the table data was not correctly scraped")
             raise Exception("Error-Thrive: Some of the table data was not correctly scraped")
