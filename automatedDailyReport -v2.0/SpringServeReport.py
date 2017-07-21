@@ -93,8 +93,8 @@ class SpringServe:
             password = browser.wait.until(EC.visibility_of_element_located((By.ID, "user_password")))
 
             # Type in username and password
-            username.send_keys("username")
-            password.send_keys("password")
+            username.send_keys("or.ben@taboola.com")
+            password.send_keys("Orben1234!")
 
             # Find sign in button and try to click it
             signInButton = browser.wait.until(EC.element_to_be_clickable((By.NAME, "commit")))
@@ -196,6 +196,7 @@ class SpringServe:
                     rev_list.append(rev)
                     imp_list.append(imp)
                     name_list.append(name)
+                # Makes sure there is no empty table row value
                 elif(lengthOfTRow is 1):
                     #do nothing
                     pass
