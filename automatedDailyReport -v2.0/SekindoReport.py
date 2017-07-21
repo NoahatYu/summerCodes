@@ -111,9 +111,9 @@ class Sekindo:
 
 
             # Type in username and password
-            username.send_keys(" Taboola_VIDEO")
+            username.send_keys("")
             sleep(1)
-            password.send_keys("68142589")
+            password.send_keys("")
             # Find sign in button and try to click it
             try:
                 sleep(3)
