@@ -93,8 +93,8 @@ class SpringServe:
             password = browser.wait.until(EC.visibility_of_element_located((By.ID, "user_password")))
 
             # Type in username and password
-            username.send_keys("or.ben@taboola.com")
-            password.send_keys("Orben1234!")
+            username.send_keys("")
+            password.send_keys("")
 
             # Find sign in button and try to click it
             signInButton = browser.wait.until(EC.element_to_be_clickable((By.NAME, "commit")))
