@@ -1,6 +1,7 @@
 import re
 import csv
 import time
+#import sendEmail
 from PulsePointReport import PulsePoint
 from time import sleep
 from selenium import webdriver
@@ -91,8 +92,8 @@ class Optimatic:
             password = browser.wait.until(EC.visibility_of_element_located((By.ID, "txtPassword")))
             #username = browser.find_element_by_id("txtUserName")
             #password = browser.find_element_by_id("txtPassword")
-            username.send_keys("username")
-            password.send_keys("password")
+            username.send_keys("")
+            password.send_keys("")
             # Find sign in button, browser.find_element_by_tag_name("button")
             signInButton = browser.wait.until(EC.visibility_of_element_located((By.TAG_NAME, "button")))
             try:
