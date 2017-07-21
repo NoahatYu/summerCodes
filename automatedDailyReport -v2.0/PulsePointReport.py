@@ -4,6 +4,7 @@ import csv
 import time
 import logging
 from time import sleep
+from util import fullpage_screenshot
 from datetime import datetime
 from datetime import timedelta
 from selenium import webdriver
@@ -70,7 +71,6 @@ class PulsePoint:
         browser.wait = WebDriverWait(browser, 5)
         return browser
 
-
     def lookup(self,browser,logger):
         """Login to website and navigate to report page
         :param browser:
@@ -97,8 +97,8 @@ class PulsePoint:
             signInButton = browser.wait.until(EC.element_to_be_clickable((By.ID, "LoginButton")))
 
             # Type in username and password
-            username.send_keys("username")
-            password.send_keys("password")
+            username.send_keys("")
+            password.send_keys("")
             # Find sign in button and try to click it
             try:
                 signInButton.click()
@@ -212,10 +212,10 @@ class PulsePoint:
     def logToFile(self,browser, logFile, LogName):
         """
         Logs data and errors to log file
-        :param browser: 
-        :param logFile: 
-        :param LogName: 
-        :return: 
+        :param browser:
+        :param logFile:
+        :param LogName:
+        :return:
         """
         logging.basicConfig(filename=logFile, level=logging.INFO)
         logger = logging.getLogger(LogName)
@@ -248,8 +248,9 @@ class PulsePoint:
                 name_of_file = name_list[q]
                 imp = imp_list[q].replace(",","")
                 rev = rev_list[q].replace("$","")
+                rev = rev.replace(",","")
 
-            name_of_file = name_of_file.replace(" ","")
+            name_of_file = name_of_file.replace(" ", "")
 
             with open(location_of_file + dict_T[name_of_file] + "|" + date_post.replace(" ", "_") + ".csv", "w") as csv_file:
                 fileWriter = csv.writer(csv_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
