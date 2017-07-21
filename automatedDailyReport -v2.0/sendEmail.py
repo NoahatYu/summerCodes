@@ -101,9 +101,9 @@ class sendEmails:
             fileWithoutdate = fileToSend.split("|")
             fileWithoutdate = fileWithoutdate[0]
 
-            sender = 'noah.p@taboola.com'  # from_address = "noah.p@taboola.com"
-            gmail_password = 'whviduonpebrdxnl'  # whviduonpebrdxnl
-            recipients = ["cm-autoreportdex@taboola.com"]  # cm-autoreportdex@taboola.com EMAIL ADDRESSES HERE SEPARATED BY COMMAS - # to_address = "daniel.t@taboola.com"
+            sender = ''  # from_address = "
+            gmail_password = '' 
+            recipients = [""]  # EMAIL ADDRESSES HERE SEPARATED BY COMMAS - # to_address = "daniel.t@taboola.com"
             # Create the enclosing (outer) message
             outer = MIMEMultipart()
             outer['To'] = COMMASPACE.join(recipients)
