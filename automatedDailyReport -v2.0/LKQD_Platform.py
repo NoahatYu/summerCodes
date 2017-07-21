@@ -2,9 +2,9 @@ import time
 import csv
 from datetime import datetime
 from datetime import timedelta
+# import sendEmail
 from time import sleep
 from selenium import webdriver
-from bs4 import BeautifulSoup
 from PulsePointReport import PulsePoint
 from selenium.common.exceptions import ElementNotVisibleException
 from selenium.common.exceptions import TimeoutException
@@ -33,6 +33,15 @@ class LKQD:
 
     logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsLog/LKQD.log/"
     logName = "LKQD"
+
+    #browser = webdriver.PhantomJS()
+    #browser.set_window_size(1120, 550)
+
+    #chrome_options = Options()
+    #chrome_options.add_argument("--headless")
+    #chrome_options.binary_location = '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary'
+    #the_path = "/Users/noah.p/going_headless/chromedriver"
+    #browser = webdriver.Chrome(executable_path=the_path, chrome_options=chrome_options)
 
     dict_T = {
         "TaboolaMWMXIOS$1floor": "SelectMedia_MW_MX-IOS_$1_floor",
@@ -84,12 +93,13 @@ class LKQD:
             logger.error("LKQD:Failed to load page")
             raise Exception("Error-LKQD:Failed to load page")
         try:
+      
             username = browser.wait.until(EC.visibility_of_element_located((By.ID, "username")))
             password = browser.wait.until(EC.visibility_of_element_located((By.ID, "password")))
             signInButton = browser.wait.until(EC.element_to_be_clickable((By.TAG_NAME, "button")))
 
-            username.send_keys("username")
-            password.send_keys("password")
+            username.send_keys("")
+            password.send_keys("")
 
             #signInButton = browser.find_element_by_tag_name("button")
             try:
@@ -106,6 +116,8 @@ class LKQD:
             print("Login Box or Button not found on LKQD website")
             print("Login Failed")
 
+            # delays for 3 seconds
+            #sleep(3)
 
     def fillInDateAndRunReport(self, browser, end_date, logger):
         # Here is a list of all the buttons on the page
