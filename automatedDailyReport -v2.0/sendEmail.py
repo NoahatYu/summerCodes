@@ -3,7 +3,6 @@ import os
 import smtplib
 from datetime import datetime
 from datetime import timedelta
-#import PulsePointReport
 from email import encoders
 from datetime import timedelta
 from email.mime.text import MIMEText
@@ -57,7 +56,7 @@ class sendEmails:
         "Sekindo_Direct_Desktop_US_LP": "Sekindo::Direct::Desktop::US::LP_DemandExtreme",
         "Sekindo_Direct_Desktop_US_LP_Jscript": "Sekindo::Direct::Desktop::US::LP::Jscript_DemandExtreme",
         "Sekindo_Direct_DT_BRMX_LP_JS": "Sekindo::Direct::DT::BRMX::LP::JS_DemandExtreme",
-        "Sekindo_Direct_Tier1_LP_JS ": "Sekindo::Direct::Tier1::LP::JS _DemandExtreme",
+        "Sekindo_Direct_Tier1_LP_JS": "Sekindo::Direct::Tier1::LP::JS _DemandExtreme",
         "Pubmatic_Direct_Desktop_LP_9": "Pubmatic::Direct::Desktop::LP::9_DemandExtreme",
         "Pubmatic_Direct_Desktop_MP_7": "Pubmatic::Direct::Desktop::MP::7_DemandExtreme",
         "Pubmatic_Direct_Desktop_Secured_6": "Pubmatic::Direct::Desktop::Secured::6_DemandExtreme",
@@ -69,9 +68,8 @@ class sendEmails:
         "Pubmatic_Direct_MW_SP_3": "Pubmatic::Direct::MW::SP::3_DemandExtreme",
         "Pubmatic_Direct_MW_Secured_5": "Pubmatic::Direct::MW::Secured::5_DemandExtreme"
 
-
-
     }
+
 
     def __init__(self,taboola_dict):
         """
@@ -81,15 +79,20 @@ class sendEmails:
         self.taboola_dict = taboola_dict
 
     def sendEmail(self,taboola_dict):
+        """
+        Send email with all the correct values
+        :param taboola_dict: 
+        :return: 
+        """
 
         COMMASPACE = ', '
-        sendDirectory = os.listdir("") #Directory by path
+        sendDirectory = os.listdir("/Users/noah.p/Desktop/DailyReports")
         # Delete .ds store on mac
         del sendDirectory[0]
         lengthOfPP = len(sendDirectory)
 
 
-        i = 0
+        i = 1
         for fileToSend in sendDirectory:
 
             fileWithCSV = fileToSend
@@ -98,9 +101,9 @@ class sendEmails:
             fileWithoutdate = fileToSend.split("|")
             fileWithoutdate = fileWithoutdate[0]
 
-            sender = ''  # from email  address =
-            gmail_password = '' 
-            recipients = [""] # EMAIL ADDRESSES HERE SEPARATED BY COMMAS
+            sender = 'noah.p@taboola.com'  # from_address = "noah.p@taboola.com"
+            gmail_password = 'whviduonpebrdxnl'  # whviduonpebrdxnl
+            recipients = ["cm-autoreportdex@taboola.com"]  # cm-autoreportdex@taboola.com EMAIL ADDRESSES HERE SEPARATED BY COMMAS - # to_address = "daniel.t@taboola.com"
             # Create the enclosing (outer) message
             outer = MIMEMultipart()
             outer['To'] = COMMASPACE.join(recipients)
@@ -111,7 +114,7 @@ class sendEmails:
             outer.preamble = 'You will not see this in a MIME-aware mail reader.\n'
 
             # List of attachment
-            attachment = "path to file" + fileWithCSV # FULL PATH TO ATTACHMENTS HERE
+            attachment = "/Users/noah.p/Desktop/DailyReports/" + fileWithCSV # FULL PATH TO ATTACHMENTS HERE
 
             # Add the attachment to the message
 
