@@ -44,12 +44,12 @@ class Optimatic:
     # Name of file and its location
     logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsDataLog/Optimatic.log/"
     logName = "Optimatic"
-    # Regular optimatic password
-    apacUsername = "taboola@selectmedia"
-    apacPassword = "Banana"
-    # Other account password
-    optMlUs_username = "Taboola"
-    optMlUs_password = "OGOkWQ"
+    # Regular Optimatic password
+    apacUsername = ""
+    apacPassword = ""
+    # Optimatic ML account password
+    optMlUs_username = ""
+    optMlUs_password = ""
 
     dict_T = {
 
@@ -95,7 +95,6 @@ class Optimatic:
         # NOTE: THIS MUST RUN PHANTOMJS
         #browser = webdriver.Firefox()
         browser = webdriver.PhantomJS()
-        #browser.maximize_window()
         browser.set_window_size(1124, 1000)
 
         browser.wait = WebDriverWait(browser, 5)
@@ -120,8 +119,7 @@ class Optimatic:
         try:
             username = browser.wait.until(EC.visibility_of_element_located((By.ID, "txtUserName")))
             password = browser.wait.until(EC.visibility_of_element_located((By.ID, "txtPassword")))
-            #username = browser.find_element_by_id("txtUserName")
-            #password = browser.find_element_by_id("txtPassword")
+            # Fill in username and password
             username.send_keys(the_username)
             password.send_keys(the_password)
             # Find sign in button, browser.find_element_by_tag_name("button")
