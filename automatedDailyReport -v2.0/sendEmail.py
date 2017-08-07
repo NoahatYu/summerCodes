@@ -9,6 +9,10 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 
+"""
+Author - Noah Potash 07/15/2017
+"""
+
 class sendEmails:
 
     date_post = datetime.now() - timedelta(days=2)
@@ -66,7 +70,9 @@ class sendEmails:
         "Pubmatic_Direct_MW_LP_8": "Pubmatic::Direct::MW::LP::8_DemandExtreme",
         "Pubmatic_Direct_MW_MP_5": "Pubmatic::Direct::MW::MP::5_DemandExtreme",
         "Pubmatic_Direct_MW_SP_3": "Pubmatic::Direct::MW::SP::3_DemandExtreme",
-        "Pubmatic_Direct_MW_Secured_5": "Pubmatic::Direct::MW::Secured::5_DemandExtreme"
+        "Pubmatic_Direct_MW_Secured_5": "Pubmatic::Direct::MW::Secured::5_DemandExtreme",
+        "Optimatic_ML_US_VPAID_DT_RS": "Optimatic::ML::US::VPAID::DT::RS_DemandExtreme",
+        "Appthis_Direct_Desktop_4.5": "Appthis::Direct::Desktop::4.5_DemandExtreme"
 
     }
 
@@ -81,8 +87,8 @@ class sendEmails:
     def sendEmail(self,taboola_dict):
         """
         Send email with all the correct values
-        :param taboola_dict: 
-        :return: 
+        :param taboola_dict:
+        :return:
         """
 
         COMMASPACE = ', '
@@ -101,9 +107,9 @@ class sendEmails:
             fileWithoutdate = fileToSend.split("|")
             fileWithoutdate = fileWithoutdate[0]
 
-            sender = ''  # from_address = "
-            gmail_password = '' 
-            recipients = [""]  # EMAIL ADDRESSES HERE SEPARATED BY COMMAS - # to_address = "daniel.t@taboola.com"
+            sender = ''
+            gmail_password = ''
+            recipients = [""]  # EMAIL ADDRESSES HERE SEPARATED BY COMMAS - #
             # Create the enclosing (outer) message
             outer = MIMEMultipart()
             outer['To'] = COMMASPACE.join(recipients)
