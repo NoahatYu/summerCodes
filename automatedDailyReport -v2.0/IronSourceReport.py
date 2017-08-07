@@ -1,6 +1,3 @@
-import re
-import os
-import csv
 import time
 from time import sleep
 from datetime import datetime
@@ -15,6 +12,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait  # available since 2.4.0
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC  # available since 2.26.0
+
+"""
+Author - Noah Potash 07/15/2017
+"""
 
 class IronSource:
     # Monday is 0 and Sunday is 6
@@ -35,19 +36,18 @@ class IronSource:
     the_time = datetime.now()
 
     # Get dates to add to url to get report
-    a_year = str(the_time.year)
-    a_month = str(the_time.month).zfill(2)
-    a_day = str(the_time.day - 2).zfill(2)
-    a_year2 = str(the_time.year)
-    a_month2 = str(the_time.month).zfill(2)
-    a_day2 = str(the_time.day - 2).zfill(2)
+    dayMonthYear = str(end_date).split("/")
+    a_month = dayMonthYear[0].zfill(2)
+    a_day = dayMonthYear[1].zfill(2)
+    a_year = dayMonthYear[2]
 
     location_of_file = "/Users/noah.p/Desktop/DailyReports/"
-    logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsLog/IronSource.log/"
+    logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsDataLog/IronSource.log/"
     logName = "IronSource"
 
-    # Don't edit name of entires they are name with extra spaces and whitespace on purpose
+    # Don't edit name of entries they are name with extra spaces and whitespace on purpose
     dict_T = {
+
         "Taboola-Mix-US-85_15-$5.5Floor": "IronSource_Direct_Desktop_US-5.5",
         "Taboola-Mix-US-$6.5-RON": "IronSource_Direct_Desktop_US-6.5",
         "Taboola-Large-US-$7.5": "IronSource_Direct_Desktop_US-7.5"
@@ -72,12 +72,16 @@ class IronSource:
         :return the browser:
         """
         browser = webdriver.Firefox()
-        browser.maximize_window()
         browser.wait = WebDriverWait(browser, 5)
         return browser
 
     def lookup(self,browser,logger):
-        """Login to the website """
+        """
+        Login to the website
+        :param browser: 
+        :param logger: 
+        :return: 
+        """
 
         try:
             loginPage = "https://partners.streamrail.com/#/signin"
@@ -94,7 +98,7 @@ class IronSource:
                 time.sleep(5)
             username = loginInputFields[0]
             password = loginInputFields[1]
-
+            # Type in username and password to sign in
             username.send_keys("")
             password.send_keys("")
             # Find sign in button
@@ -123,7 +127,7 @@ class IronSource:
         """
 
         # Get the report page and run the report
-        reportsPage = "https://partners.streamrail.com/#/report?dimension=trafficChannel&endDate=" + IronSource.a_year + "-" + IronSource.a_month + "-" + IronSource.a_day + "T23%3A59%3A59%2B00%3A00&sortAsc=false&sortBy=cost&startDate=" + IronSource.a_year2 + "-" + IronSource.a_month2 + "-" + IronSource.a_day2 + "T00%3A00%3A00%2B00%3A00&type=supply-partner-traffic-channel"
+        reportsPage = "https://partners.streamrail.com/#/report?dimension=trafficChannel&endDate=" + IronSource.a_year + "-" + IronSource.a_month + "-" + IronSource.a_day + "T23%3A59%3A59%2B00%3A00&sortAsc=false&sortBy=cost&startDate=" + IronSource.a_year + "-" + IronSource.a_month + "-" + IronSource.a_day + "T00%3A00%3A00%2B00%3A00&type=supply-partner-traffic-channel"
         try:
             browser.get(reportsPage)
         except Exception:
@@ -141,7 +145,7 @@ class IronSource:
             #Scroll down to bottom of page
             browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             # Save screen shot
-            screenShot = browser.save_screenshot(filename="/Users/noah.p/PycharmProjects/autoReports/DailyReportsLog/IronSourceData.png")
+            screenShot = browser.save_screenshot(filename="/Users/noah.p/PycharmProjects/autoReports/DailyReportsDataLog/IronSourceData.png")
             browser.quit()
 
             table_data_list = table_data.splitlines()
@@ -156,6 +160,7 @@ class IronSource:
         try:
             paid_impressions_list = [row[0], row1[0], row2[0]]
             revenue_list = [row[1], row1[1], row2[1]]
+            # taboola list is a list of the campaigns
             taboola_list = table_data_list[2:5]
             numberOfRows = len(taboola_list)
         except Exception:
