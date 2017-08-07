@@ -12,6 +12,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC  # available since 2.26.0
 from selenium.webdriver.support.ui import WebDriverWait  # available since 2.4.0
 
+"""
+Author - Noah Potash 07/15/2017
+"""
+
 
 class SpringServe:
     # Monday is 0 and Sunday is 6
@@ -25,22 +29,22 @@ class SpringServe:
     end_date = date_1 - timedelta(days=2)
     end_date = end_date.strftime('%m/%d/%Y')
 
-    # This one is in "Month name day, full year ex.July 12,2017
+
+    # This one is in "Month name day, full year ex. July 12,2017
     date_post = datetime.now() - timedelta(days=2)
     date_post = date_post.strftime(("%B %d, %Y"))
 
     the_time = datetime.now()
 
-    a_year1 = str(the_time.year % 100)
-    a_month1 = str(the_time.month)
-    a_day1 = str(the_time.day - 2)
-    a_year2 = str(the_time.year % 100)
-    a_month2 = str(the_time.month)
-    a_day2 = str(the_time.day - 2)
+    dayMonthYear = str(end_date).split("/")
+    a_month = dayMonthYear[0]
+    a_day = dayMonthYear[1]
+    a_year = str(the_time.year % 100)
+
 
     location_of_file = "/Users/noah.p/Desktop/DailyReports/"
 
-    logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsLog/SpringServe.log/"
+    logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsDataLog/SpringServe.log/"
     logName = "SpringServe"
 
 
@@ -72,7 +76,6 @@ class SpringServe:
         #browser = webdriver.Firefox()
         browser = webdriver.PhantomJS()
         browser.set_window_size(1124, 1000)
-
         browser.wait = WebDriverWait(browser, 5)
         return browser
 
@@ -121,7 +124,7 @@ class SpringServe:
         :return:
         """
         # Get the report page and run the report
-        date_report_page = "https://video.springserve.com/reports?date_range=Custom&custom_date_range=" + SpringServe.a_month1 + "%2F" + SpringServe.a_day1 + "%2F" + SpringServe.a_year1 + "+00%3A00+-+" + SpringServe.a_month2 + "%2F" + SpringServe.a_day2 + "%2F" + SpringServe.a_year2 + "+23%3A00&interval=Day&timezone=America%2FNew_York&dimensions%5B%5D=supply_tag_id"
+        date_report_page = "https://video.springserve.com/reports?date_range=Custom&custom_date_range=" + SpringServe.a_month + "%2F" + SpringServe.a_day + "%2F" + SpringServe.a_year + "+00%3A00+-+" + SpringServe.a_month + "%2F" + SpringServe.a_day + "%2F" + SpringServe.a_year + "+23%3A00&interval=Day&interval_start_day=&timezone=America%2FNew_York&dimensions%5B%5D=supply_tag_id"
         browser.get(date_report_page)
         # If not loaded correctly try again
         if not(browser.current_url == date_report_page):
@@ -196,19 +199,16 @@ class SpringServe:
                     rev_list.append(rev)
                     imp_list.append(imp)
                     name_list.append(name)
-                # Makes sure there is no empty table row value
-                elif(lengthOfTRow is 1):
-                    #do nothing
-                    pass
                 else:
-                    logger.error("SpringServe: Some Table data was not found and might be missing")
-                    print("Error- SpringServe: Some Table data was not found and might be missing")
+                    pass
+                    #logger.error("SpringServe: Some Table data was not found and might be missing")
+                    #print("Error- SpringServe: Some Table data was not found and might be missing")
         except Exception:
             logger.error("SpringServe: Some of the table data was not correctly scraped")
             print("Error- SpringServe: Some of the table data was not correctly scraped")
 
         # Save screen shot
-        screenShot = browser.save_screenshot(filename="/Users/noah.p/PycharmProjects/autoReports/DailyReportsLog/SpringServeData.png")
+        screenShot = browser.save_screenshot(filename="/Users/noah.p/PycharmProjects/autoReports/DailyReportsDataLog/SpringServeData.png")
         return name_list, imp_list, rev_list
 
 
@@ -232,3 +232,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
