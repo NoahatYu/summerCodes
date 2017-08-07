@@ -84,7 +84,6 @@ class Pubmatic:
         :return the browser:
         """
         browser = webdriver.Firefox()
-        #browser.maximize_window()
         browser.wait = WebDriverWait(browser, 5)
         return browser
 
@@ -110,8 +109,8 @@ class Pubmatic:
             signInButton = browser.wait.until(EC.element_to_be_clickable((By.TAG_NAME, "button")))
 
             # Type in username and password
-            username.send_keys("or.ben@taboola.com")
-            password.send_keys("ELwGdKxnyb64")
+            username.send_keys("")
+            password.send_keys("")
             # Find sign in button and try to click it
             try:
                 signInButton.click()
@@ -171,13 +170,17 @@ class Pubmatic:
             # Get all a tags "<a"
             aTags = browser.find_elements_by_tag_name("a")
 
-            # If the date is the 2nd and yesterday is the 1st
+            # If the date is the 2nd and yesterday is the 1st run the previous month method
             if self.yesterday is 1:
                 self.previousMonth(browser, logger)
             else:
                 # Click the yesterday button
                 aTags[54].click()
-
+            
+            # NOTE: The reason I decided to click all these seemingly random/buttons not related to getting the reports for the day.
+            # I do this because, I need to adjust the calender in a way so that it makes it easier to get the day that I want.
+           
+            
             # Refresh the date drop down menu
             date_cal_btn = browser.wait.until(EC.visibility_of_element_located((By.ID, "date-picker-dropdown")))
             date_cal_btn.click()
