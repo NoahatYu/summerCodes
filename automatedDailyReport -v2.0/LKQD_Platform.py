@@ -2,7 +2,6 @@ import time
 import csv
 from datetime import datetime
 from datetime import timedelta
-# import sendEmail
 from time import sleep
 from selenium import webdriver
 from PulsePointReport import PulsePoint
@@ -13,6 +12,10 @@ from selenium.webdriver.support import expected_conditions as EC  # available si
 from selenium.webdriver.support.ui import WebDriverWait  # available since 2.4.0
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
+
+"""
+Author - Noah Potash 07/15/2017
+"""
 
 class LKQD:
     # Monday is 0 and Sunday is 6
@@ -31,17 +34,16 @@ class LKQD:
 
     location_of_file = "/Users/noah.p/Desktop/DailyReports/"
 
-    logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsLog/LKQD.log/"
+    logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsDataLog/LKQD.log/"
     logName = "LKQD"
 
-    #browser = webdriver.PhantomJS()
-    #browser.set_window_size(1120, 550)
 
-    #chrome_options = Options()
-    #chrome_options.add_argument("--headless")
-    #chrome_options.binary_location = '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary'
-    #the_path = "/Users/noah.p/going_headless/chromedriver"
-    #browser = webdriver.Chrome(executable_path=the_path, chrome_options=chrome_options)
+    lkqdUserName = ""
+    lkqdPassWord = ""
+
+    appthisUsername = ""
+    appthisPassword = ""
+
 
     dict_T = {
         "TaboolaMWMXIOS$1floor": "SelectMedia_MW_MX-IOS_$1_floor",
@@ -53,22 +55,31 @@ class LKQD:
         "TaboolaMWHKIOS$1floor": "SelectMedia_MW_HK-IOS_$1_floor",
         "TaboolaMWBRIOS$0.5floor": "SelectMedia_MW_BR-IOS_$0.5_floor",
         "TaboolaMWBRIOS$1floor": "SelectMedia_MW_BR-IOS_$1_floor",
-        "TaboolaMWHKAndroid$1floor": "SelectMedia_MW_HK-Android_$1_floor"
+        "TaboolaMWHKAndroid$1floor": "SelectMedia_MW_HK-Android_$1_floor",
+        "Taboola-DT-SP-VPAID-$4.50": "Appthis_Direct_Desktop_4.5"
 
     }
 
-    def __init__(self, end_date, date_post, location_of_file, dict_T):
+    def __init__(self, end_date, date_post, location_of_file, dict_T,lkqdUserName, lkqdPassword,appthisUsername,appthisPassword):
         """
         Constructor
         :param end_date:
         :param date_post:
         :param location_of_file:
         :param dict_T:
+        :param lkqdUserName:
+        :param lkqdPassword:
+        :param appthisUsername:
+        :param appthisPassword:
         """
         self.end_date = end_date
         self.date_post = date_post
         self.location_of_file = location_of_file
         self.dict_T = dict_T
+        self.lkqdUserName = lkqdUserName
+        self.lkqdPassWord = lkqdPassword
+        self.appthisUsername = appthisUsername
+        self.appthisPassword = appthisPassword
 
     def start_browser(self):
         """
@@ -76,13 +87,16 @@ class LKQD:
         :return the browser:
         """
         browser = webdriver.Firefox()
-        browser.maximize_window()
         browser.wait = WebDriverWait(browser, 5)
         return browser
 
-    def lookup(self,browser,logger):
-        """Login to website and navigate to report page
+    def lookup(self,browser, the_username, the_password, logger):
+        """
+        Login to website and navigate to report page
         :param browser:
+        :param the_username:
+        :param the_password:
+        :param logger:
         :return:
         """
         try:
@@ -93,13 +107,15 @@ class LKQD:
             logger.error("LKQD:Failed to load page")
             raise Exception("Error-LKQD:Failed to load page")
         try:
-      
+            #username = browser.find_element_by_id("username")
+            #password = browser.find_element_by_id("password")
+
             username = browser.wait.until(EC.visibility_of_element_located((By.ID, "username")))
             password = browser.wait.until(EC.visibility_of_element_located((By.ID, "password")))
             signInButton = browser.wait.until(EC.element_to_be_clickable((By.TAG_NAME, "button")))
 
-            username.send_keys("")
-            password.send_keys("")
+            username.send_keys(the_username)
+            password.send_keys(the_password)
 
             #signInButton = browser.find_element_by_tag_name("button")
             try:
@@ -256,6 +272,7 @@ class LKQD:
                 reportTable = browser.find_element_by_tag_name("table")
                 report_table_data = reportTable.text.splitlines()
                 report_table_data = report_table_data[15:]
+                # taboolas are campaigns
                 taboolas = report_table_data[2::3]
             except:
                 try:
@@ -297,8 +314,6 @@ class LKQD:
 
         # Scroll down to bottom of page
         browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        # Save screen shot
-        screenShot = browser.save_screenshot(filename="/Users/noah.p/PycharmProjects/autoReports/DailyReportsLog/LKQDData.png")
 
         return final_name_list, final_imp_list, final_rev_list
 
@@ -309,15 +324,28 @@ def main():
     :return:
     """
     pp = PulsePoint(PulsePoint.end_date, PulsePoint.date_post, PulsePoint.location_of_file, PulsePoint.dict_T)
-    lkqd = LKQD(LKQD.end_date,LKQD.date_post,LKQD.location_of_file,LKQD.dict_T)
+    lkqd = LKQD(LKQD.end_date, LKQD.date_post,LKQD.location_of_file,LKQD.dict_T,LKQD.lkqdUserName,LKQD.lkqdPassWord,LKQD.appthisUsername,LKQD.appthisPassword)
     browser = lkqd.start_browser()
     logger = pp.logToFile(browser, LKQD.logFile, LKQD.logName)
-    lkqd.lookup(browser,logger)
-    lkqd.fillInDateAndRunReport(browser, lkqd.end_date,logger)
-    final_name_list, final_imp_list, final_rev_list = lkqd.getData(browser,logger)
-    if len(final_name_list) is 0 or len(final_imp_list) is 0 or len(final_rev_list) is 0:
+    index = 0
+
+    while index < 2:
+        if index is 0:
+            lkqd.lookup(browser,lkqd.lkqdUserName,lkqd.lkqdPassWord,logger)
+        else:
+            # DO the appthis next
+            print("Now, running appthis report on LKQD platform")
+            lkqd.lookup(browser, lkqd.appthisUsername, lkqd.appthisPassword, logger)
+
+        lkqd.fillInDateAndRunReport(browser, lkqd.end_date, logger)
         final_name_list, final_imp_list, final_rev_list = lkqd.getData(browser,logger)
-    pp.makeCSV(lkqd.location_of_file, lkqd.dict_T, final_name_list, final_imp_list, final_rev_list, lkqd.end_date, lkqd.date_post)
+        if len(final_name_list) is 0 or len(final_imp_list) is 0 or len(final_rev_list) is 0:
+            final_name_list, final_imp_list, final_rev_list = lkqd.getData(browser,logger)
+        pp.makeCSV(lkqd.location_of_file, lkqd.dict_T, final_name_list, final_imp_list, final_rev_list, lkqd.end_date, lkqd.date_post)
+        # Save screen shot
+        screenShot = browser.save_screenshot(filename="/Users/noah.p/PycharmProjects/autoReports/DailyReportsDataLog/LKQDData" + str(index) + ".png")
+        index += 1
+
     browser.quit()
 
 
