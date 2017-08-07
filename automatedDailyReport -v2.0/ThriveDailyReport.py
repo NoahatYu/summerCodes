@@ -18,6 +18,10 @@ from selenium.webdriver.support.ui import WebDriverWait  # available since 2.4.0
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC  # available since 2.26.0
 
+"""
+Author - Noah Potash 07/15/2017
+"""
+
 class Thrive:
     start_time_tr = time.time()
     # Monday is 0 and Sunday is 6
@@ -35,13 +39,11 @@ class Thrive:
 
     the_time = datetime.now()
 
+    dayMonthYear = str(end_date).split("/")
+    a_month = dayMonthYear[0]
+    a_day = dayMonthYear[1]
+    a_year = str(the_time.year % 100)
 
-    a_year1 = str(the_time.year % 100)
-    a_month1 = str(the_time.month)
-    a_day1 = str(the_time.day - 2)
-    a_year2 = str(the_time.year % 100)
-    a_month2 = str(the_time.month)
-    a_day2 = str(the_time.day - 2)
 
 
     dict_T = {
@@ -50,8 +52,8 @@ class Thrive:
     }
 
     location_of_file = "/Users/noah.p/Desktop/DailyReports/"
-    logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsLog/Thrive.log/"
-    logName = "Thirve"
+    logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsDataLog/Thrive.log/"
+    logName = "Thrive"
 
     def __init__(self, end_date, date_post, location_of_file, dict_T):
         """
@@ -71,10 +73,9 @@ class Thrive:
         Initilizes the browser
         :return the browser:
         """
-        # browser = webdriver.Firefox()
+        #browser = webdriver.Firefox()
         browser = webdriver.PhantomJS()
         browser.set_window_size(1124, 1000)
-
         browser.wait = WebDriverWait(browser, 5)
         return browser
 
@@ -93,10 +94,9 @@ class Thrive:
         try:
             username = browser.wait.until(EC.visibility_of_element_located((By.ID, "user_email")))
             password = browser.wait.until(EC.visibility_of_element_located((By.ID, "user_password")))
-
+            # Type in username and password
             usernameThrive = ""
             passwordThrive = ""
-            # Type in username and password
             username.send_keys(usernameThrive)
             password.send_keys(passwordThrive)
 
@@ -123,7 +123,7 @@ class Thrive:
         :return:
         """
         # Get the report page and run the report
-        date_report_page = "https://video.springserve.com/reports?date_range=Custom&custom_date_range=" + Thrive.a_month1 + "%2F" + Thrive.a_day1 + "%2F" + Thrive.a_year1 + "+00%3A00+-+" +Thrive.a_month2 + "%2F" + Thrive.a_day2 + "%2F" + Thrive.a_year2 + "+23%3A00&interval=Day&timezone=America%2FNew_York&dimensions%5B%5D=supply_tag_id"
+        date_report_page = "https://video.springserve.com/reports?date_range=Custom&custom_date_range=" + Thrive.a_month + "%2F" + Thrive.a_day + "%2F" + Thrive.a_year + "+00%3A00+-+" +Thrive.a_month + "%2F" + Thrive.a_day + "%2F" + Thrive.a_year + "+23%3A00&interval=Day&timezone=America%2FNew_York&dimensions%5B%5D=supply_tag_id"
         browser.get(date_report_page)
         # If not loaded correctly try again
         if not (browser.current_url == date_report_page):
@@ -165,6 +165,7 @@ class Thrive:
         name_list = []
         try:
             sleep(4)
+
             for table_row in table_row_data:
                 table_row = table_row.text
                 current_row = table_row.split(" ")
@@ -192,7 +193,7 @@ class Thrive:
             logger.error("Thrive: Some of the table data was not correctly scraped")
             raise Exception("Error-Thrive: Some of the table data was not correctly scraped")
         # Save screen shot
-        screenShot = browser.save_screenshot(filename="/Users/noah.p/PycharmProjects/autoReports/DailyReportsLog/ThirveData.png")
+        screenShot = browser.save_screenshot(filename="/Users/noah.p/PycharmProjects/autoReports/DailyReportsDataLog/ThirveData.png")
         return name_list, imp_list, rev_list
 
 
