@@ -1,8 +1,4 @@
-import re
-import os
-import csv
 import time
-import logging
 from time import sleep
 from PulsePointReport import PulsePoint
 from datetime import datetime
@@ -17,7 +13,12 @@ from selenium.webdriver.support.ui import WebDriverWait  # available since 2.4.0
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC  # available since 2.26.0
 
+"""
+Author - Noah Potash 07/15/2017
+"""
+
 class Pubmatic:
+
     """Gets all the dates and times that are needed for this class"""
     # Monday is 0 and Sunday is 6
     DayOfTheWeek = datetime.today().weekday()
@@ -34,12 +35,18 @@ class Pubmatic:
     date_post = datetime.now() - timedelta(days=2)
     date_post = date_post.strftime(("%B %d, %Y"))
 
-
     the_time = datetime.now()
+    yesterday = the_time.day - 1
+
     two_days_ago = str(the_time.day - 2)
     location_of_file = "/Users/noah.p/Desktop/DailyReports/"
+    # Dates
+    dayMonthYear = str(end_date).split("/")
+    a_month = dayMonthYear[0]
+    a_day = dayMonthYear[1].lstrip("0")
+    a_year = dayMonthYear[2]
 
-    logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsLog/AutoDailyManualReportslogs.log/"
+    logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsDataLog/AutoDailyManualReportslogs.log/"
     logName = "Pubmatic"
 
 
@@ -77,7 +84,7 @@ class Pubmatic:
         :return the browser:
         """
         browser = webdriver.Firefox()
-        browser.maximize_window()
+        #browser.maximize_window()
         browser.wait = WebDriverWait(browser, 5)
         return browser
 
@@ -121,16 +128,24 @@ class Pubmatic:
             print("Login Failed")
 
 
-    def fillInDateAndRunReport(self,browser,two_days_ago):
+    def fillInDateAndRunReport(self,browser,logger):
         """
         Fill in the date for the website and click it
         :param: browser, end_date
         :return:
         """
-        sleep(3)
-        analyticsPage = "https://analytics.pubmatic.com/#/?originApp=publisher&resourceType=publisher&signoutUrl=https:%2F%2Fapps.pubmatic.com%2F%2Fpublisher%2F%3FviewName%3Dsignout&apiAuthKey=PubToken&apiAuthValue=68bf3dfba4bc478b9500d644f04499e3&originUrl=https:%2F%2Fapps.pubmatic.com%2F%2Fdashboard%2Fapp%2F%23%2Fpublisher&homeUrl=https:%2F%2Fapps.pubmatic.com%2F%2Fdashboard%2Fapp%2F%23%2Fpublisher&resourceId=156307&opString=5G6QHS07D3Y4DFMJMBR6MYF9JN1K1WKD&loginType=0"
-        browser.get(analyticsPage)
-        sleep(3)
+        sleep(4)
+        # Find and click the analytics button from all the buttons on the page
+        allBtnsOnPage = browser.find_elements_by_class_name("ng-binding")
+        for btn in allBtnsOnPage:
+            if btn.text == "Analytics":
+                btn.click()
+                break
+
+        #analyticsPage = "https://analytics.pubmatic.com/#/?originApp=publisher&resourceType=publisher&signoutUrl=https%3A%2F%2Fapps.pubmatic.com%2F%2Fpublisher%2F%3FviewName%3Dsignout&apiAuthKey=PubToken&apiAuthValue=07491ab89772412893e64b8b923a1edb&originUrl=https%3A%2F%2Fapps.pubmatic.com%2F%2Fdashboard%2Fapp%2F%23%2Fpublisher&homeUrl=https%3A%2F%2Fapps.pubmatic.com%2F%2Fdashboard%2Fapp%2F%23%2Fpublisher&resourceId=156307&opString=0IP2LNZV7YNJ9Y8IG6HYFO9X2QKNP6VN&loginType=0"
+        #browser.get(analyticsPage)
+
+        sleep(2)
         reportsPage = "https://analytics.pubmatic.com/#/slice?f=eyJkIjpbInNpdGVJZCIsImRhdGUiXSwibSI6WyJwYWlkSW1wcmVzc2lvbnMiLCJlY3BtIiwicmV2ZW51ZSIsInRvdGFsSW1wcmVzc2lvbnMiXSwiZiI6W1sidCIsInJldmVudWUiLCJ0IiwiMjUiLCIiLCIiLFtdXSxbInQiLCJkYXRlIiwidCIsIjEwIiwiIiwiIixbXV1dLCJ0IjpbMl0sImN0IjpbXSwiYyI6eyJ0IjoiYmFyY2hhcnQiLCJkIjoiIiwiYSI6ImRhdGUiLCJtIjoicmV2ZW51ZSJ9LCJhIjoiZGF0ZSJ9&standardReportId=260"
         browser.get(reportsPage)
 
@@ -152,25 +167,55 @@ class Pubmatic:
             # Click the button
             date_cal_btn.click()
 
-        # Get all a tags "<a"
-        aTags = browser.find_elements_by_tag_name("a")
-        # Find custom range button
-        for button in aTags:
-            if button.text == "Custom Range":
-                button.click()
-                break
+        try:
+            # Get all a tags "<a"
+            aTags = browser.find_elements_by_tag_name("a")
+
+            # If the date is the 2nd and yesterday is the 1st
+            if self.yesterday is 1:
+                self.previousMonth(browser, logger)
+            else:
+                # Click the yesterday button
+                aTags[54].click()
+
+            # Refresh the date drop down menu
+            date_cal_btn = browser.wait.until(EC.visibility_of_element_located((By.ID, "date-picker-dropdown")))
+            date_cal_btn.click()
+            # Refresh the <a tags on the page
+            aTags = browser.find_elements_by_tag_name("a")
+            # Click the Custom range button
+            aTags[61].click()
+            # Then find click the date button by searching through all the span tags on the page
+            spanTags = browser.find_elements_by_tag_name("span")
+
+            for button in spanTags:
+                if button.text == "Date":
+                    button.click()
+                    break
+
+        except:
+            # Trying again to find the drop down menu and buttons and select them
+            # Find custom range button
+            for button in aTags:
+                if button.text == "Yesterday":
+                    button.click()
+                    break
+            # Refresh the <a tags and also the drop down menu and open it
+            aTags = browser.find_elements_by_tag_name("a")
+            date_cal_btn = browser.wait.until(EC.visibility_of_element_located((By.ID, "date-picker-dropdown")))
+            date_cal_btn.click()
+            # find and click the custom range button
+            for button in aTags:
+                if button.text == "Custom Range":
+                    button.click()
+                    break
+
 
         # Get all the calender dates
-        days = browser.find_elements_by_class_name("days-cell")
+        calender_days = browser.find_elements_by_class_name("days-cell")
+
         # Find and click the date of 2 days ago
-        x = 0
-        for date in days:
-            if date.text == two_days_ago:
-                date.click()
-                x += 1
-                # Found both dates for both calenders so end the loop early
-                if x > 1:
-                    break
+        self.calenderSelect(calender_days)
 
         sleep(2)
         # Find and click the confirm button to finish putting in the dates
@@ -181,9 +226,38 @@ class Pubmatic:
         browser.execute_script("window.scrollTo(0, 800)")
 
         # Take and save screen shot of table
-        screenShot = browser.save_screenshot(filename="/Users/noah.p/PycharmProjects/autoReports/DailyReportsLog/PubmaticData.png")
+        screenShot = browser.save_screenshot(filename="/Users/noah.p/PycharmProjects/autoReports/DailyReportsDataLog/PubmaticData.png")
 
+    def calenderSelect(self, calender_days):
+        x = 0
 
+        for date in calender_days:
+            if date.text == Pubmatic.a_day:
+                date.click()
+                x += 1
+                # Found both dates for both calenders so end the loop early
+                if x > 1:
+                    return 0
+
+    def previousMonth(self, browser, logger):
+        """
+        Check if current date is the 2nd and yesterday is the 1st
+         then got to go back a month on calender
+        :param browser:
+        :param logger
+        :return:
+        """
+        try:
+            aTags = browser.find_elements_by_tag_name("a")
+            try:
+                # Click last month button in drop down menu
+                aTags[58].click()
+            except:
+                logger.error("Pubmatic: unable to click one month back button on calender")
+                raise Exception("Error- Pubmatic: unable to click one month back button on calender")
+        except:
+            logger.error("Pubmatic: could not find one month back button on calender")
+            raise Exception("Error-Pubmatic: could not find one month back button on calender")
 
     def getData(self,browser,logger):
         """
