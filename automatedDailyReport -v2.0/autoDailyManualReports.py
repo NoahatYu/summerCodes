@@ -11,6 +11,10 @@ import IronSourceReport
 import SekindoDailyReport
 import PubmaticReports
 
+"""
+Author - Noah Potash 07/15/2017
+"""
+
 class AutoDailyManualReports:
     """
     MAIN class for the Auto Daily Manual Reports
