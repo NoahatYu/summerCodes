@@ -1,7 +1,6 @@
 import re
 import csv
 import time
-#import sendEmail
 from PulsePointReport import PulsePoint
 from time import sleep
 from selenium import webdriver
@@ -11,9 +10,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from bs4 import BeautifulSoup
+"""
+Author - Noah Potash 07/15/2017
+"""
 
 class Optimatic:
-    # The calender is weird so got to go back a month
+
+    # The calender is weird so got to go back a month on the 2nd of the month
     # Monday is 0 and Sunday is 6
     DayOfTheWeek = datetime.today().weekday()
     # Get the current Date
@@ -31,8 +34,22 @@ class Optimatic:
     the_time = datetime.now()
     yesterday = the_time.day - 1
 
-    logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsLog/Optimatic.log/"
+    # The date of two days in the past broken down by day,month, and year
+    dayMonthYear = str(end_date).split("/")
+    a_month = dayMonthYear[0]
+    a_day = dayMonthYear[1]
+    a_year = dayMonthYear[2]
+
+
+    # Name of file and its location
+    logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsDataLog/Optimatic.log/"
     logName = "Optimatic"
+    # Regular optimatic password
+    apacUsername = "taboola@selectmedia"
+    apacPassword = "Banana"
+    # Other account password
+    optMlUs_username = "Taboola"
+    optMlUs_password = "OGOkWQ"
 
     dict_T = {
 
@@ -45,21 +62,30 @@ class Optimatic:
         "Taboola APAC SG": "Taboola APAC SG".replace(" ", "_"),
         "Taboola APAC SG $3.5 floor": "Taboola APAC SG $3.5 floor".replace(" ", "_"),
         "Taboola APAC TH": "Taboola APAC TH".replace(" ", "_"),
+        "Taboola_ML_US_VPAID_DT_RS": "Optimatic_ML_US_VPAID_DT_RS"
 
     }
 
-    def __init__(self, end_date, date_post, the_time, dict_T):
+    def __init__(self, end_date, date_post, the_time, dict_T,apacUsername,apacPassword,optMlUs_username,optMlUs_password):
         """
         Constructor
         :param end_date:
         :param date_post:
-        :param location_of_file:
+        :param the_time:
         :param dict_T:
+        :param apacUsername:
+        :param apacPassword:
+        :param optMlUs_username:
+        :param optMlUs_password:
         """
         self.end_date = end_date
         self.date_post = date_post
         self.the_time = the_time
         self.dict_T = dict_T
+        self.apacUsername = apacUsername
+        self.apacPassword = apacPassword
+        self.optMlus_username = optMlUs_username
+        self.optMlUs_password = optMlUs_password
 
     def start_browser(self):
         """
@@ -75,10 +101,14 @@ class Optimatic:
         browser.wait = WebDriverWait(browser, 5)
         return browser
 
-    def lookup(self, browser,logger):
+    def lookup(self, browser,the_username, the_password,logger):
         """
         Navigates to the reports page
+        :param self:
         :param browser:
+        :param the_username:
+        :param the_password:
+        :param logger:
         :return:
         """
 
@@ -92,8 +122,8 @@ class Optimatic:
             password = browser.wait.until(EC.visibility_of_element_located((By.ID, "txtPassword")))
             #username = browser.find_element_by_id("txtUserName")
             #password = browser.find_element_by_id("txtPassword")
-            username.send_keys("")
-            password.send_keys("")
+            username.send_keys(the_username)
+            password.send_keys(the_password)
             # Find sign in button, browser.find_element_by_tag_name("button")
             signInButton = browser.wait.until(EC.visibility_of_element_located((By.TAG_NAME, "button")))
             try:
@@ -148,6 +178,7 @@ class Optimatic:
         Fills in the date in the calenders on the site and runs the report
         :param browser:
         :param the_time:
+        :param logger
         :return: all_list_containers
         """
         #select_report_type_btn = browser.find_element_by_class_name('headerTitle')
@@ -166,7 +197,8 @@ class Optimatic:
 
         #all_list_containers = browser.find_elements_by_class_name('label')
         try:
-            domain_btn = all_list_containers[2].click()
+            domain_btn = all_list_containers[2]
+            domain_btn.click()
         except:
             logger.error("Domain button not clickable, Trying again...")
             print("ERROR: Domain button not clickable, Trying again...")
@@ -199,8 +231,11 @@ class Optimatic:
             logger.error("Optimatic: unable to locate calender")
             raise Exception("Error-Optimatic: unable to locate calender")
 
-        numberOfDaysInMonth = len(calender_date) / 2
-        numberOfDaysInMonth = int(numberOfDaysInMonth)
+        # Select the date on both calenders to get the report data
+        self.calenderSelect(calender_date)
+
+        #numberOfDaysInMonth = len(calender_date) / 2
+        #numberOfDaysInMonth = int(numberOfDaysInMonth)
 
         # 2 calenders and 30 days c1: 0:1 - 29:30 and c2: 30:1 - 60:30
         # if 31 days c1: 0:1 - 30:31 and c2: 31:1 - 62:31
@@ -211,26 +246,26 @@ class Optimatic:
 
         try:
             # Prevoius month method
-            if (self.yesterday == 1):
+            if self.yesterday is 1:
                 self.prevoiusMonth(browser,the_time,logger)
 
-            calender_dates = browser.find_elements_by_xpath('//a[@href="'+'#'+'"]')
-            first_half_cal = calender_date[:len(calender_date) // 2]
-            second_half_cal = calender_date[len(calender_date) // 2:]
+            #calender_dates = browser.find_elements_by_xpath('//a[@href="'+'#'+'"]')
 
-            first_cal_date = first_half_cal[two_days_past - 1]
-            second_cal_date = second_half_cal[two_days_past - 1]
+            # Find and click the dates for 2 days ago
+            calender_days = browser.find_elements_by_class_name('ui-state-default')
+            # Selects the date on both calenders to get the report data
+            self.calenderSelect(calender_days)
 
-            first_cal_date.click()
-            second_cal_date.click()
 
 
         except:
             logger.error("unable to find calender dates, trying again...")
             print("ERROR: unable to find calender dates, trying again...")
+            # Another method to find and click date wanted
             try:
                 if (self.yesterday == 1):
                     self.prevoiusMonth()
+
 
                 calender_dates = browser.find_elements_by_link_text(two_days_past_str)
                 # Click both buttons
@@ -254,28 +289,37 @@ class Optimatic:
 
         return all_list_containers
 
-    def getDataAndMakeCSV(self, browser,end_date, date_post):
+    def getDataAndMakeCSV(self, browser,end_date, date_post,index):
         """
         Scrapes the data from the website and exports it as an CSV file
         :param browser:
         :param all_list_containers:
+        :param date_post
+        :param index
         :return:
         """
-        # Split the list to get the taboolas I would like
+        # Taboolas are campaigns
+        # Split the list to get the taboolas/campaigns I would like
         all_list_containers = browser.find_elements_by_class_name('label')
-        select_report_type_DropDownList = all_list_containers[5:14]
-        numberOfTaboolas = len(select_report_type_DropDownList)
+        if index is 0:
+            select_report_type_DropDownList = all_list_containers[5:14]
+            numberOfTaboolas = len(select_report_type_DropDownList)
+        else:
+            select_report_type_DropDownCampaign = all_list_containers[6]
+            select_report_type_DropDownList = []
+            select_report_type_DropDownList.append(select_report_type_DropDownCampaign)
+            numberOfTaboolas = 1
         # sleep(3)
         q = 0
         while(q < numberOfTaboolas):
-            # After the first taboola is done the buttons need to be reloaded
+            # After the first Taboola/campaign is done the buttons need to be reloaded
             if(q > 0):
                 sleep(2)
                 change_taboola = browser.find_elements_by_class_name("headerListTitles")
                 change_taboola[1].click()
                 all_list_containers = browser.find_elements_by_class_name('label')
                 select_report_type_DropDownList = all_list_containers[5:14]
-
+            # Find the campaign and view the report data
             current_Taboola = select_report_type_DropDownList[q].text
             select_report_type_DropDownList[q].click()
             view_report_btn = browser.find_element_by_class_name("labelButton")
@@ -286,18 +330,38 @@ class Optimatic:
             soup = BeautifulSoup(html_source, "html.parser")
             str_text = soup.text
             try:
-                found = re.search("var array = (.+?)}];", str_text).group(1)
+                if index is 0:
+                    found = re.search("var array = (.+?)}];", str_text).group(1)
+                else:
+                    found = re.search("window.reportData = (.+?)}];",str_text).group(1)
             except AttributeError:
                 found = ''
 
             data_list = found.split(",")
 
-            # note: Ads delivered is paid impressions
-            paid_impressions_list = data_list[::4]
-            paid_impressions_list = paid_impressions_list[1::2]
-            domain_list = data_list[1::8]
-            revenue_list = data_list[6::8]
-            numberOfElements = len(domain_list)
+            # Save the Optimatic data to a text file
+
+            with open('/Users/noah.p/PycharmProjects/autoReports/DailyReportsDataLog/OptimaticDataFolder/OptimaticData' + current_Taboola  +'.txt',"w") as f:
+                for data in data_list:
+                    f.writelines(data + "\n")
+            if index is 0:
+                # note: Ads delivered is paid impressions
+                paid_impressions_list = data_list[::4]
+                paid_impressions_list = paid_impressions_list[1::2]
+                domain_list = data_list[1::8]
+                revenue_list = data_list[6::8]
+                numberOfElements = len(domain_list)
+            else:
+                # Making list of only one item so the code that runs next will work
+                domain_list = []
+                paid_impressions_list = []
+                revenue_list = []
+                paid_impressions_list.append(data_list[5])
+                domain_list.append(data_list[2])
+                revenue_list.append(data_list[11])
+                numberOfElements = 1
+
+
 
             # Remove clutter and getting a clean website string
             x = 0
@@ -306,6 +370,7 @@ class Optimatic:
                 paid_impressions_list[x] = paid_impressions_list[x].split(":").pop().replace(" ", "")
                 revenue_list[x] = revenue_list[x].split(":").pop().replace(" ", "")
                 x += 1
+            
             location_of_file = "/Users/noah.p/Desktop/DailyReports/"
             indexer = 0
 
@@ -314,20 +379,29 @@ class Optimatic:
                 # Write to csv file
                 with open(location_of_file + self.dict_T[current_Taboola] + "|" + date_post.replace(" ", "_") + ".csv", "w") as csv_file:
                     fileWriter = csv.writer(csv_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-                    fileWriter.writerow(["Date", "Site", "Impressions", "Revenue"])
+
                     # Write to file
-                    while(indexer < (numberOfElements - 1)):
-                        fileWriter.writerow([end_date, domain_list[indexer], paid_impressions_list[indexer], revenue_list[indexer]])
-                        indexer += 1
+                    if index is 1:
+                        fileWriter.writerow(["Date", "Zone", "Impressions", "Revenue"])
+                        while (indexer < numberOfElements):
+                            fileWriter.writerow([end_date, domain_list[indexer], paid_impressions_list[indexer], revenue_list[indexer]])
+                            indexer += 1
+                    else:
+                        fileWriter.writerow(["Date", "Site", "Impressions", "Revenue"])
+                        while(indexer < (numberOfElements - 1)):
+                            fileWriter.writerow([end_date, domain_list[indexer], paid_impressions_list[indexer], revenue_list[indexer]])
+                            indexer += 1
                 q += 1
             else:
                 q += 1
 
     def prevoiusMonth(self, browser, the_time,logger):
         """
-        Check if current date is the 1st then got to go back a month on calender and click it, one day
+        Check if current date is the 2nd and yesterday is the 1st
+         then got to go back a month on calender
         :param browser:
         :param the_time:
+        :param logger
         :return:
         """
         try:
@@ -344,24 +418,47 @@ class Optimatic:
             logger.error("Optimatic: could not find one month back button on calender")
             raise Exception("Error-Optimatic: could not find one month back button on calender")
 
+    def calenderSelect(self, calender_days):
+        x = 0
+        for date in calender_days:
+            if date.text == Optimatic.a_day:
+                date.click()
+                x += 1
+                # Found both dates for both calenders so end the loop early
+                if x > 1:
+                    return 0
+
 def main():
     """
     Main method
     :return:
     """
-    op = Optimatic(Optimatic.end_date, Optimatic.date_post, Optimatic.the_time, Optimatic.dict_T)
+    op = Optimatic(Optimatic.end_date, Optimatic.date_post, Optimatic.the_time, Optimatic.dict_T,Optimatic.apacUsername,
+                   Optimatic.apacPassword,Optimatic.optMlUs_username,Optimatic.optMlUs_password)
     pp = PulsePoint(op.end_date, op.date_post, op.the_time, op.dict_T)
     browser = op.start_browser()
     logger = pp.logToFile(browser, Optimatic.logFile, Optimatic.logName)
-    op.lookup(browser,logger)
-    all_list_containers = op.fillInDateAndRunReport(browser, op.the_time,logger)
-    # If the return list is empty then there must be an error, so try again
-    if len(all_list_containers) is 0:
+
+    index = 0
+    # Does 2 sites/campaigns on the same platform
+    while index < 2:
+        if index is 0:
+            op.lookup(browser,op.apacUsername,op.apacPassword,logger)
+        else:
+            browser.quit()
+            browser = op.start_browser()
+            op.lookup(browser,op.optMlUs_username,op.optMlUs_password,logger)
+
         all_list_containers = op.fillInDateAndRunReport(browser, op.the_time,logger)
-    op.getDataAndMakeCSV(browser, op.end_date,op.date_post)
+        # If the return list is empty then there must be an error, so try again
+        if len(all_list_containers) is 0:
+            all_list_containers = op.fillInDateAndRunReport(browser, op.the_time,logger)
+
+        op.getDataAndMakeCSV(browser, op.end_date,op.date_post, index)
+        index += 1
     browser.quit()
 
 
 if __name__ == "__main__":
-    # stuff only to run when not called via 'import' here
+    # Run main method
     main()
