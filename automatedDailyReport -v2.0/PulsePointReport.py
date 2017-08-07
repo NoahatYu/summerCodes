@@ -1,10 +1,7 @@
-import re
-import os
 import csv
 import time
 import logging
 from time import sleep
-from util import fullpage_screenshot
 from datetime import datetime
 from datetime import timedelta
 from selenium import webdriver
@@ -16,6 +13,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait  # available since 2.4.0
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC  # available since 2.26.0
+
+"""
+Author - Noah Potash 07/15/2017
+"""
 
 class PulsePoint:
     """Gets all the dates and times that are needed for this class"""
@@ -30,7 +31,8 @@ class PulsePoint:
     end_date = date_1 - timedelta(days=2)
     end_date = end_date.strftime('%m/%d/%Y')
 
-    # This one is in "Month name day, full year ex.July 12,2017
+
+    # This one is in "Month name day, full year ex. July 12, 2017
     date_post = datetime.now() - timedelta(days=2)
     date_post = date_post.strftime(("%B %d, %Y"))
 
@@ -38,7 +40,7 @@ class PulsePoint:
     the_time = datetime.now()
     location_of_file = "/Users/noah.p/Desktop/DailyReports/"
 
-    logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsLog/AutoDailyManualReportslogs.log/"
+    logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsDataLog/AutoDailyManualReportslogs.log/"
     logName = "PulsePoint"
 
 
@@ -67,7 +69,6 @@ class PulsePoint:
         :return the browser:
         """
         browser = webdriver.Firefox()
-        browser.maximize_window()
         browser.wait = WebDriverWait(browser, 5)
         return browser
 
@@ -205,7 +206,7 @@ class PulsePoint:
         imp_list = paid_imps_col[2:]
 
         #Save screen shot
-        screenShot = browser.save_screenshot(filename="/Users/noah.p/PycharmProjects/autoReports/DailyReportsLog/PulsePointData.png")
+        screenShot = browser.save_screenshot(filename="/Users/noah.p/PycharmProjects/autoReports/DailyReportsDataLog/PulsePointData.png")
 
         return name_list, imp_list, rev_list
 
