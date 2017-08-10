@@ -40,11 +40,11 @@ class Ooyala:
     logName = "ooyala"
 
 
-    ooyalaUserName = "eedo.b@taboola.com"
-    ooyalaPassWord = "taboola10010"
+    ooyalaUserName = ""
+    ooyalaPassWord = ""
 
-    Username2 = "rwaxman@convertmedia.com"
-    Password2 = "dr3Xe"
+    Username2 = ""
+    Password2 = ""
 
     dayMonthYear = str(end_date).split("/")
     a_month = dayMonthYear[0].zfill(2)
