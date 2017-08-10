@@ -56,6 +56,7 @@ class Ooyala:
 
     dict_T = {
 
+        "Desktop_direct_instream_Tier3Geos": "Desktop_direct_instream_Tier3_Geos"
     }
 
     def __init__(self, end_date, date_post, location_of_file, dict_T,ooyalaUserName, ooyalaPassword,Username2,Password2):
@@ -137,14 +138,16 @@ class Ooyala:
         """
         Gets the data from the site
         :param browser:
-        :return json of the data:
+        :return the data in JSON:
         """
         sleep(2)
-        tableDataRequest = browser.get("http://pulse-ssp-reporting.ooyala.com/hierarchy/view/?dimension=daily,custom3&startdate=" + Ooyala.a_year + "-" + Ooyala.a_month + "-" + Ooyala.a_day +" 04:00&enddate=" + Ooyala.a_year + "-" + Ooyala.a_month + "-" + Ooyala.next_day +" 03:00&datesIncludesTime=true&filters=filterkey:site---filtervalues:127799---&pageNumber=1&pageItemsCount=3000&includeSliceOnly=false&columns=imps,total_sprice&flat=true&currency=USD")
-        print(browser.current_url)
+        browser.get("http://pulse-ssp-reporting.ooyala.com")
+        sleep(1)
+        dataPage = "http://pulse-ssp-reporting.ooyala.com/slices/view/?dimension=site&startdate=" + Ooyala.a_year + "-" + Ooyala.a_month + "-" + Ooyala.a_day + " 04:00&enddate=" + Ooyala.a_year + "-" + Ooyala.a_month + "-" + Ooyala.next_day + " 03:00&datesIncludesTime=true&filters=filterkey:site---filtervalues:127649---&pageNumber=1&pageItemsCount=100&includeSliceOnly=false&columns=imps,publisher_net&currency=USD"
+        tableDataRequest = browser.get(dataPage)
         soup = BeautifulSoup(browser.page_source,"html.parser")
         j = json.loads(soup.find("body").text)
-        jsonListData = j["data"]["slice"]
+        jsonListData = j["data"]["slice"]["slice"]
         browser.quit()
 
         return jsonListData
@@ -153,66 +156,35 @@ class Ooyala:
         """
         Parses the json of the data
         :param json_data:
-        :return domain_list_final,imp_list_final,rev_list_final:
+        :return dp_list,imp_list,rev_list:
         """
         # print(j["data"]["slice"][0]["imps"])
         json_list_length = len(json_data)
 
-        rev_list_final = []
-        imp_list_final = []
-        domain_list_final = []
+        rev_list = []
+        imp_list = []
+        # Demand partner list
+        dp_list = []
 
         for jdata in json_data:
-            # Ignore empty ones since they will be less than 5
-            if len(jdata) > 5:
+            # Ignore empty ones since they will be less than 4
+            if len(jdata) > 4:
                 # Get the domains and add to the list
 
-                current_domain = jdata["custom3"]
-                # makes sure not to add domains that are empty strings
-                if len(current_domain) > 6:
-                    # parse/remove the 'http//' from website
-                    current_domain_final = current_domain.split("//")
+                current_dp = jdata["site_mapping"]
+                current_dp = current_dp.replace("-","_").replace(" ", "")
 
-                domain_list_final.append(current_domain_final[1])
+                dp_list.append(current_dp)
                 # Get the impressions and add to list
-                current_imp = jdata["imps"]
-                imp_list_final.append(current_imp)
+                current_imp = str(jdata["imps"])
+                imp_list.append(current_imp)
                 # Get the revenues and add to list - total_sprice:
-                current_rev = jdata["total_sprice"]
-                rev_list_final.append(current_rev)
+                current_rev = str(jdata["publisher_net"])
+                rev_list.append(current_rev)
 
-        return domain_list_final,imp_list_final,rev_list_final
+        return dp_list,imp_list,rev_list
 
-    def makeCSV(self,location_of_file, dict_T, domain_list,imp_list,rev_list,end_date,date_post):
-        """
-        Makes 3 lists of all the data into a csv file
-        :param location_of_file:
-        :param dict_T:
-        :param domain_list:
-        :param imp_list:
-        :param rev_list:
-        :param end_date:
-        :param date_post:
-        :return:
-        """
 
-        name_of_file = "Desktop_direct_outstream_Tier3_Geos"
-
-        with open(location_of_file + name_of_file + "|" + date_post.replace(" ", "_") + ".csv", "w") as csv_file:
-            fileWriter = csv.writer(csv_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            fileWriter.writerow(["Date", "Site", "Impressions", "Revenue"])
-
-            numberOfItems = len(domain_list)
-
-            # Write to csv file
-            q = 0
-            while q < numberOfItems:
-                current_imp = imp_list[q]
-                current_rev = rev_list[q]
-                current_domain = domain_list[q]
-                fileWriter.writerow([end_date, current_domain , current_imp, current_rev])
-
-                q += 1
 
 
 def main():
@@ -229,12 +201,12 @@ def main():
     logger = pp.logToFile(browser, ooyala.logFile, ooyala.logName)
     ooyala.loginTo(browser,ooyala.ooyalaUserName,ooyala.ooyalaPassWord,logger)
     json_data = ooyala.getData(browser)
-    domain_list, imp_list, rev_list = ooyala.parseJson(json_data)
-    ooyala.makeCSV(ooyala.location_of_file,ooyala.dict_T,domain_list, imp_list, rev_list,ooyala.end_date,ooyala.date_post)
+    dp_list, imp_list, rev_list = ooyala.parseJson(json_data)
+    pp.makeCSV(ooyala.location_of_file,ooyala.dict_T,dp_list, imp_list, rev_list,ooyala.end_date,ooyala.date_post)
     print("Done")
-
 
 
 if __name__ == "__main__":
     # Run Main method
     main()
+
