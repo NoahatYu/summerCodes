@@ -11,11 +11,9 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC  # available since 2.26.0
 from selenium.webdriver.support.ui import WebDriverWait  # available since 2.4.0
-
 """
-Author - Noah Potash 07/15/2017
+Author - Noah Potash 08/08/2017
 """
-
 
 class SpringServe:
     # Monday is 0 and Sunday is 6
@@ -76,6 +74,7 @@ class SpringServe:
         #browser = webdriver.Firefox()
         browser = webdriver.PhantomJS()
         browser.set_window_size(1124, 1000)
+
         browser.wait = WebDriverWait(browser, 5)
         return browser
 
@@ -123,6 +122,19 @@ class SpringServe:
         :param browser:
         :return:
         """
+
+        # Makes sure it will run the select media report
+        isSelect = self.isSelectMedia(browser)
+
+        if isSelect is False:
+            print("Error SpringServe: Page is not at select media")
+            logger.error("Error SpringServe: Page is not at select media")
+            print("To solve this sign in manually in another browser and manually switch the tab that says 'Taboola' in the top right to selectMedia(Supply)")
+            print("And then re-run this script")
+            raise Exception("Error SpringServe: Page is not at select media")
+
+
+
         # Get the report page and run the report
         date_report_page = "https://video.springserve.com/reports?date_range=Custom&custom_date_range=" + SpringServe.a_month + "%2F" + SpringServe.a_day + "%2F" + SpringServe.a_year + "+00%3A00+-+" + SpringServe.a_month + "%2F" + SpringServe.a_day + "%2F" + SpringServe.a_year + "+23%3A00&interval=Day&interval_start_day=&timezone=America%2FNew_York&dimensions%5B%5D=supply_tag_id"
         browser.get(date_report_page)
@@ -210,6 +222,15 @@ class SpringServe:
         # Save screen shot
         screenShot = browser.save_screenshot(filename="/Users/noah.p/PycharmProjects/autoReports/DailyReportsDataLog/SpringServeData.png")
         return name_list, imp_list, rev_list
+
+    def isSelectMedia(self,browser):
+        # get all the span tags
+        spanTags = browser.find_elements_by_tag_name("span")
+        # If it finds the select media text then it will return true
+        for selectMedia in spanTags:
+            if selectMedia.text == "SelectMedia":
+                return True
+        return False
 
 
 def main():
