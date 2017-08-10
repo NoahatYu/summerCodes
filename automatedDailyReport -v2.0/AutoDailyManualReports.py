@@ -10,9 +10,10 @@ import ThriveDailyReport
 import IronSourceReport
 import SekindoDailyReport
 import PubmaticReports
+import OoyalaReport
 
 """
-Author - Noah Potash 07/15/2017
+Author - Noah Potash 08/08/2017
 """
 
 class AutoDailyManualReports:
@@ -29,15 +30,16 @@ class AutoDailyManualReports:
     ir = 0
     sk = 0
     pb = 0
+    oy = 0
     start_time_total = time()
 
-    logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsLog/AutoDailyManualReportslogs.log/"
+    logFile = "/Users/noah.p/PycharmProjects/autoReports/DailyReportsDataLog/AutoDailyManualReportslogs.log/"
     logName = "Auto"
     logging.basicConfig(filename=logFile, level=logging.INFO)
     logger = logging.getLogger(logName)
 
 
-    def __init__(self, pp, ss, op, lk, th, ir, sk, pb,start_time_total,logFile, logName, logger):
+    def __init__(self, pp, ss, op, lk, th, ir, sk, pb,oy,start_time_total,logFile, logName, logger):
         """
         Constructor for class
         :param pp:
@@ -57,6 +59,7 @@ class AutoDailyManualReports:
         self.ir = ir
         self.sk = sk
         self.pb = pb
+        self.oy = oy
         self.start_time_total = start_time_total
         self.logFile = logFile
         self.logName = logName
@@ -83,7 +86,7 @@ class AutoDailyManualReports:
                 pp += 1
                 if pp is 3:
                     print("ERROR: PulsePoint did not run")
-                    logger.error("PulsePont did not run")
+                    logger.error("PulsePoint did not run")
                 else:
                     pass
         print("DONE")
@@ -270,6 +273,32 @@ class AutoDailyManualReports:
         print("Pubmatic program took --- %s seconds ---" % (time() - start_time_pb))
         print("-----------------")
 
+    def runOoyalaReport(self,oy, logger):
+        """
+        RUns the ooyala script
+        :param oy:
+        :param logger:
+        :return:
+        """
+        start_time_oy = time()
+        print("Running Pubmatic")
+        result = 0
+        while result is 0 and oy < 3:
+            try:
+                # Try 3 times before giving up
+                OoyalaReport.main()
+                result = 1
+            except:
+                oy += 1
+                if oy is 3:
+                    logger.error("Ooyala did not run")
+                    print("ERROR: Ooyala did not run")
+        logger.info("Ooyala program took --- %s seconds ---" % (time() - start_time_oy))
+        print("Ooyala program took --- %s seconds ---" % (time() - start_time_oy))
+        print("-----------------")
+
+
+
     def sendAllEmails(self):
         """
         Sends emails from a specific folder
@@ -287,7 +316,7 @@ def main():
     """
     autoR = AutoDailyManualReports(AutoDailyManualReports.pp,AutoDailyManualReports.ss,AutoDailyManualReports.op,
                                 AutoDailyManualReports.lk,AutoDailyManualReports.th,AutoDailyManualReports.ir,
-                                AutoDailyManualReports.sk, AutoDailyManualReports.pb,AutoDailyManualReports.start_time_total,
+                                AutoDailyManualReports.sk, AutoDailyManualReports.pb,AutoDailyManualReports.oy,AutoDailyManualReports.start_time_total,
                                 AutoDailyManualReports.logFile,AutoDailyManualReports.logName,AutoDailyManualReports.logger)
 
     autoR.runPulsePointReport(autoR.pp, autoR.logger)
@@ -297,8 +326,9 @@ def main():
     autoR.runThriveReport(autoR.th, autoR.logger)
     autoR.runIronSourceReport(autoR.ir, autoR.logger)
     autoR.runSekindoDailyReport(autoR.sk, autoR.logger)
-    autoR.runPubmaticReports(autoR.pb, autoR.logger)
-    autoR.sendAllEmails()
+    #autoR.runPubmaticReports(autoR.pb, autoR.logger)
+    autoR.runOoyalaReport(autoR.oy,autoR.logger)
+    #autoR.sendAllEmails()
 
     autoR.logger.info("The Daily Manual Reports program took --- %s seconds ---" % (time() - autoR.start_time_total))
     print("The Daily Manual Reports program took --- %s seconds ---" % (time() - autoR.start_time_total))
